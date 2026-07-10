@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PM Quest — Jogo de Product Management</title>
+<link rel="stylesheet" href="game.css">
+</head>
+<body>
+<canvas id="confetti"></canvas>
+
+<div class="app">
+
+  <div class="appbar">
+    <svg viewBox="0 0 48 48" aria-hidden="true"><rect x="3" y="2" width="42" height="44" rx="8" fill="#0033a0"/><g fill="#fff"><path d="M13 12.5 L35 10.5 L34 16 L12 18 Z"/><path d="M12.3 19 L34.3 17 L33.3 22.5 L11.3 24.5 Z"/><path d="M11.6 25.5 L33.6 23.5 L32.6 29 L10.6 31 Z"/><path d="M10.9 32 L32.9 30 L31.9 35.5 L9.9 37.5 Z"/></g></svg>
+    <div class="t">PM Quest<small>Product Management · Júnior → Sénior</small></div>
+    <div class="spacer"></div>
+    <button class="streak-chip off" id="streakChip" title="Sequência diária — ver estatísticas">🔥 0</button>
+    <button class="icon-btn" id="settingsBtn" title="Definições" aria-label="Definições">⚙️</button>
+  </div>
+
+  <!-- ============ HOME ============ -->
+  <div id="screen-home">
+    <div class="card">
+      <div class="rank">
+        <div class="medal" id="medal">🌱</div>
+        <div class="info">
+          <div class="lbl">Nível actual</div>
+          <h2 id="rankName">Estagiário</h2>
+          <div class="xp" id="xpLine">0 XP</div>
+        </div>
+      </div>
+      <div class="bar"><i id="bar"></i></div>
+      <div class="bar-cap"><span id="barFrom">Estagiário</span><span id="barTo">Júnior</span></div>
+      <div class="levels-track" id="levelsTrack"></div>
+      <div class="stats">
+        <div class="stat"><div class="n" id="stAnswered">0</div><div class="d">Respondidas</div></div>
+        <div class="stat"><div class="n" id="stAcc">0%</div><div class="d">Precisão</div></div>
+        <div class="stat"><div class="n" id="stRounds">0</div><div class="d">Rondas</div></div>
+        <div class="stat"><div class="n" id="stRemaining">0</div><div class="d">Por responder</div></div>
+      </div>
+      <div class="weak hidden" id="weakWrap">
+        <h3>Desempenho por tema</h3>
+        <div class="chips" id="weakChips"></div>
+      </div>
+
+      <div class="actions">
+        <button class="btn btn-primary" id="startBtn">▶ Iniciar Exercício</button>
+        <div class="mode-row">
+          <button class="btn btn-ghost" id="weakBtn"><span class="em">🎯</span> Áreas Fracas</button>
+          <button class="btn btn-ghost" id="filterBtn"><span class="em">🎛️</span> Filtrar</button>
+          <button class="btn btn-ghost" id="reviewBtn"><span class="em">🔁</span> Rever Erros<span> (0)</span></button>
+        </div>
+        <button class="textlink" id="statsBtn">📊 Estatísticas &amp; conquistas →</button>
+      </div>
+      <div class="foot">Banco com <b id="bankTotal">0</b> questões · 10 por ronda · sem repetições</div>
+    </div>
+  </div>
+
+  <!-- ============ QUIZ ============ -->
+  <div id="screen-quiz" class="hidden">
+    <div class="card">
+      <div class="timerwrap" id="timerWrap">
+        <div class="tlabel"><span>⏱️ Tempo</span><span id="timerNum">30s</span></div>
+        <div class="timerbar" id="timerBar"><i></i></div>
+      </div>
+      <div class="qtop">
+        <span class="qc" id="qCount">Questão 1 / 10</span>
+        <div class="dots" id="dots"></div>
+      </div>
+      <div class="qtag">
+        <span class="topic" id="qTopic">Tema</span>
+        <span id="qDif" class="dif-junior">Fácil</span>
+      </div>
+      <div class="qtext" id="qText">…</div>
+      <div class="opts" id="opts"></div>
+      <div class="reveal hidden" id="reveal"></div>
+      <div class="qnav">
+        <button class="btn btn-ghost" id="quitBtn" style="min-width:auto;margin-right:auto;">✕ Sair</button>
+        <button class="btn btn-primary" id="nextBtn" disabled>Próxima →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ RESULTS ============ -->
+  <div id="screen-res" class="hidden">
+    <div class="card">
+      <div class="res-hero">
+        <div class="score" id="resScore">0<small>/10</small></div>
+        <div class="msg" id="resMsg">…</div>
+        <div class="res-badges" id="resBadges"></div>
+        <div class="levelup hidden" id="levelup"></div>
+      </div>
+      <div class="ach-unlocked hidden" id="achUnlocked"></div>
+      <div class="review">
+        <h3 id="reviewTitle">Revisão</h3>
+        <div id="reviewList"></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-ghost" id="homeBtn">🏠 Início</button>
+        <button class="btn btn-primary" id="againBtn">Novo Exercício →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ STATS ============ -->
+  <div id="screen-stats" class="hidden">
+    <div class="card">
+      <div class="screen-head">
+        <button class="icon-btn" id="statsBack" aria-label="Voltar">←</button>
+        <h2>Estatísticas &amp; Conquistas</h2>
+      </div>
+      <div class="kpis">
+        <div class="kpi"><div class="n" id="kpiXp">0</div><div class="d">XP total</div></div>
+        <div class="kpi"><div class="n" id="kpiAcc">0%</div><div class="d">Precisão</div></div>
+        <div class="kpi"><div class="n" id="kpiRounds">0</div><div class="d">Rondas</div></div>
+        <div class="kpi"><div class="n" id="kpiStreak">0</div><div class="d">Sequência</div></div>
+        <div class="kpi"><div class="n" id="kpiBest">0</div><div class="d">Melhor sequência</div></div>
+        <div class="kpi"><div class="n" id="kpiAvg">0</div><div class="d">XP média/ronda</div></div>
+      </div>
+      <div class="spark">
+        <h3>Tendência de precisão (últimas rondas)</h3>
+        <svg id="sparkSvg" viewBox="0 0 600 70" preserveAspectRatio="none"></svg>
+      </div>
+      <div class="tbars">
+        <h3>Melhores temas</h3><div id="bestBars"></div>
+      </div>
+      <div class="tbars">
+        <h3>Temas a melhorar</h3><div id="weakBars"></div>
+      </div>
+      <div class="ach-grid-wrap">
+        <h3>Conquistas</h3><div class="ach-grid" id="achGrid"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ===== FILTER MODAL ===== -->
+<div class="overlay hidden" id="overlayFilter">
+  <div class="modal" role="dialog" aria-label="Filtrar exercício">
+    <h3>🎛️ Filtrar exercício</h3>
+    <div class="sub">Prepara-te para uma vaga específica escolhendo o tema e a dificuldade.</div>
+    <div class="field">
+      <label for="fTopic">Tema</label>
+      <select id="fTopic"><option value="__all__">Todos os temas</option></select>
+    </div>
+    <div class="field">
+      <label>Dificuldade</label>
+      <div class="seg" id="fDiffSeg">
+        <button class="on" data-d="all">Todas</button>
+        <button data-d="junior">Fácil</button>
+        <button data-d="mid">Médio</button>
+        <button data-d="senior">Difícil</button>
+      </div>
+    </div>
+    <div class="modal-btns">
+      <button class="btn btn-ghost" id="fCancel">Cancelar</button>
+      <button class="btn btn-primary" id="fStart">Começar →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SETTINGS MODAL ===== -->
+<div class="overlay hidden" id="overlaySettings">
+  <div class="modal" role="dialog" aria-label="Definições">
+    <h3>⚙️ Definições</h3>
+    <div class="sub">Personaliza a tua experiência de jogo.</div>
+
+    <div class="setrow">
+      <div class="lb">Modo de estudo<small>Mostra a resposta e explicação logo após cada questão (em vez de só no fim)</small></div>
+      <label class="switch"><input type="checkbox" id="setModeStudy"><span class="sl"></span></label>
+    </div>
+    <div class="setrow">
+      <div class="lb">Temporizador<small>Conta-decrescente de 30s por questão, com bónus de rapidez</small></div>
+      <label class="switch"><input type="checkbox" id="setTimer" checked><span class="sl"></span></label>
+    </div>
+    <div class="setrow">
+      <div class="lb">Som<small>Efeitos sonoros de acerto, erro e subida de nível</small></div>
+      <label class="switch"><input type="checkbox" id="setSound" checked><span class="sl"></span></label>
+    </div>
+    <div class="setrow">
+      <div class="lb">Tema escuro<small>Alterna entre claro e escuro</small></div>
+      <label class="switch"><input type="checkbox" id="setTheme"><span class="sl"></span></label>
+    </div>
+    <div class="setrow">
+      <div class="lb">Progresso<small>Guarda ou restaura o teu progresso num ficheiro</small></div>
+      <div style="display:flex;gap:8px;flex-shrink:0;">
+        <button class="btn btn-ghost" id="setExport" style="min-height:40px;padding:8px 12px;font-size:13px;">⬇ Exportar</button>
+        <label class="btn btn-ghost" style="min-height:40px;padding:8px 12px;font-size:13px;cursor:pointer;">⬆ Importar<input type="file" id="setImport" accept="application/json" hidden></label>
+      </div>
+    </div>
+    <div class="setrow">
+      <button class="link-danger" id="setReset">↺ Recomeçar do zero</button>
+    </div>
+
+    <div class="modal-btns" style="margin-top:16px;">
+      <button class="btn btn-primary" id="setClose">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- toast -->
+<div class="toast" id="toast"></div>
+
+<script src="questions.js"></script>
+<script src="game.js"></script>
+</body>
+</html>
