@@ -11,22 +11,18 @@
 (function () {
   "use strict";
 
-  // ====================================================================
-  //  CONFIG — paste your Supabase anon/public key below, then save.
-  //  Get it from: Supabase Dashboard -> Project Settings -> API
-  //  The anon key is PUBLIC by design; Row Level Security protects data.
-  //  NEVER put the service_role key or the database password here.
-  // ====================================================================
-  var SUPABASE_URL = "https://inijdjbclaiujgcuwhvb.supabase.co";
-  var SUPABASE_ANON_KEY = "PASTE_YOUR_ANON_PUBLIC_KEY_HERE";
-  // ====================================================================
+  // Config comes from supabase-config.js (window.PMQUEST_SUPABASE), which is
+  // shared with login.html. Fallbacks below keep this file usable on its own.
+  var CFG = window.PMQUEST_SUPABASE || {};
+  var SUPABASE_URL = CFG.url || "https://inijdjbclaiujgcuwhvb.supabase.co";
+  var SUPABASE_ANON_KEY = CFG.anonKey || "PASTE_YOUR_PUBLISHABLE_KEY_HERE";
 
   var $ = function (id) { return document.getElementById(id); };
 
   var configured =
     /^https:\/\/.+\.supabase\.co$/.test(SUPABASE_URL) &&
     SUPABASE_ANON_KEY &&
-    SUPABASE_ANON_KEY !== "PASTE_YOUR_ANON_PUBLIC_KEY_HERE";
+    SUPABASE_ANON_KEY !== "PASTE_YOUR_PUBLISHABLE_KEY_HERE";
 
   // If not configured or the CDN library failed to load (e.g. offline),
   // hide the account UI and leave the app exactly as it was.

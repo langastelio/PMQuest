@@ -61,8 +61,12 @@ Não há passo de _build_ nem instalação de dependências.
 | `game.css`      | Estilos, incluindo tema claro/escuro via variáveis CSS.                       |
 | `game.js`       | Lógica do jogo: níveis, XP, rondas, temporizador, conquistas, estatísticas, persistência. |
 | `questions.js`  | Banco de perguntas — define o global `window.QUESTION_BANK`.                   |
+| `login.html`    | Página de login/registo dedicada (Supabase), com opção "jogar como convidado". |
+| `supabase-config.js` | Configuração partilhada do Supabase (URL + chave pública).               |
 | `supabase-sync.js` | Camada **opcional** de conta + sincronização na nuvem (ver secção abaixo).  |
 | `supabase/schema.sql` | SQL para criar a tabela e as políticas de segurança no Supabase.         |
+| `vendor/supabase.js` | Biblioteca `supabase-js` alojada localmente (evita bloqueios de CDN).    |
+| `docs/firebase-guide.md` | Guia de referência para, em alternativa, ligar ao **Firebase**.      |
 
 A ordem de carregamento importa: `questions.js` **antes** de `game.js`.
 
@@ -135,9 +139,15 @@ funciona exatamente como antes** (offline, só `localStorage`).
 4. Serve o site por HTTP (a autenticação não funciona a partir de `file://`) — por
    exemplo com GitHub Pages ou `python -m http.server`.
 
-Depois, em **Definições → Conta & sincronização**, o utilizador cria conta / entra com
-**email + palavra-passe**. Ao entrar, o progresso local e o da nuvem são reconciliados
-(fica o que tiver mais progresso) e, a partir daí, cada gravação é enviada para a nuvem.
+Há **duas formas** de entrar, ambas com **email + palavra-passe**:
+- a página dedicada [`login.html`](login.html) (com opção *jogar como convidado*); ou
+- diretamente em **Definições → Conta & sincronização** dentro do jogo.
+
+Ao entrar, o progresso local e o da nuvem são reconciliados (fica o que tiver mais
+progresso) e, a partir daí, cada gravação é enviada para a nuvem.
+
+> Alternativa: para usar **Firebase** em vez de Supabase, segue o
+> [guia do Firebase](docs/firebase-guide.md).
 
 **Segurança:** a chave `anon` é **pública por natureza** — a proteção real vem das
 políticas _Row Level Security_ na base de dados, que garantem que cada utilizador só

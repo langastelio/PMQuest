@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PM Quest — Entrar</title>
+<link rel="stylesheet" href="game.css">
+<style>
+  .login-page{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 16px;}
+  .login-brand{display:flex;align-items:center;gap:12px;margin-bottom:22px;}
+  .login-brand svg{width:44px;height:44px;}
+  .login-brand .t{font-weight:800;font-size:24px;color:var(--ink);line-height:1;}
+  .login-brand .t small{display:block;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:700;margin-top:4px;}
+  .login-card{width:100%;max-width:420px;}
+  .login-card h2{font-size:22px;color:var(--ink);margin-bottom:4px;}
+  .login-card .sub{font-size:13.5px;color:var(--muted);margin-bottom:20px;}
+  .seg-tabs{display:flex;gap:6px;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:5px;margin-bottom:18px;}
+  .seg-tabs button{flex:1;padding:10px;border:0;background:transparent;color:var(--muted);font-weight:800;font-size:14px;border-radius:9px;cursor:pointer;}
+  .seg-tabs button.on{background:var(--paper);color:var(--accent);box-shadow:0 2px 6px rgba(10,26,51,.08);}
+  body.dark .seg-tabs button.on{color:var(--accent-lt);}
+  .login-field{margin-bottom:12px;}
+  .login-field label{display:block;font-size:12px;font-weight:700;color:var(--ink);margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em;}
+  .login-divider{display:flex;align-items:center;gap:12px;color:var(--muted);font-size:12px;margin:20px 0 16px;}
+  .login-divider::before,.login-divider::after{content:"";flex:1;height:1px;background:var(--line);}
+  .login-guest{display:block;text-align:center;color:var(--accent);font-weight:700;font-size:14px;text-decoration:none;padding:12px;}
+  body.dark .login-guest{color:var(--accent-lt);}
+  .login-foot{margin-top:20px;font-size:11.5px;color:var(--muted);text-align:center;max-width:420px;line-height:1.5;}
+  .login-signedin{background:var(--bg);border:1px solid var(--green);border-radius:12px;padding:14px 16px;margin-bottom:16px;font-size:14px;color:var(--ink);}
+  body.dark .login-signedin{border-color:var(--green-2);}
+</style>
+</head>
+<body>
+<div class="login-page">
+
+  <div class="login-brand">
+    <svg viewBox="0 0 48 48" aria-hidden="true"><rect x="3" y="2" width="42" height="44" rx="8" fill="#0033a0"/><g fill="#fff"><path d="M13 12.5 L35 10.5 L34 16 L12 18 Z"/><path d="M12.3 19 L34.3 17 L33.3 22.5 L11.3 24.5 Z"/><path d="M11.6 25.5 L33.6 23.5 L32.6 29 L10.6 31 Z"/><path d="M10.9 32 L32.9 30 L31.9 35.5 L9.9 37.5 Z"/></g></svg>
+    <div class="t">PM Quest<small>Product Management</small></div>
+  </div>
+
+  <div class="card login-card">
+    <!-- shown when already logged in -->
+    <div id="alreadyIn" class="hidden">
+      <h2>Bem-vindo de volta 👋</h2>
+      <div class="login-signedin">Sessão iniciada como <b id="whoEmail"></b>.</div>
+      <button class="btn btn-primary" id="goGame">▶ Entrar no jogo</button>
+      <div style="height:10px"></div>
+      <button class="btn btn-ghost" id="signOut">Terminar sessão</button>
+    </div>
+
+    <!-- login / signup form -->
+    <div id="authForm">
+      <h2 id="formTitle">Entrar</h2>
+      <div class="sub" id="formSub">Guarda o teu progresso e sincroniza entre dispositivos.</div>
+
+      <div class="seg-tabs">
+        <button id="tabLogin" class="on">Entrar</button>
+        <button id="tabSignup">Criar conta</button>
+      </div>
+
+      <div class="login-field">
+        <label for="email">Email</label>
+        <input id="email" type="email" class="acct-input" placeholder="email@exemplo.com" autocomplete="email">
+      </div>
+      <div class="login-field">
+        <label for="pass">Palavra-passe</label>
+        <input id="pass" type="password" class="acct-input" placeholder="mín. 6 caracteres" autocomplete="current-password">
+      </div>
+
+      <div id="msg" class="acct-msg" style="margin-bottom:12px;"></div>
+
+      <button class="btn btn-primary" id="submitBtn">Entrar</button>
+
+      <div class="login-divider">ou</div>
+      <a class="login-guest" href="index.html">Jogar como convidado (só neste dispositivo) →</a>
+    </div>
+  </div>
+
+  <div class="login-foot" id="cfgFoot"></div>
+</div>
+
+<script src="vendor/supabase.js"></script>
+<script src="supabase-config.js"></script>
+<script>
+(function () {
+  "use strict";
+  var $ = function (id) { return document.getElementById(id); };
+
+  // Apply the same light/dark theme the game uses.
+  try {
+    var st = JSON.parse(localStorage.getItem("pmquest_v2") || "null");
+    if (st && st.settings && st.settings.theme === "dark") document.body.classList.add("dark");
+  } catch (e) {}
+
+  var CFG = window.PMQUEST_SUPABASE || {};
+  var ready = window.supabase && CFG.url && CFG.anonKey &&
+              CFG.anonKey !== "PASTE_YOUR_PUBLISHABLE_KEY_HERE";
+
+  if (!ready) {
+    $("cfgFoot").textContent =
+      "⚠ Autenticação indisponível (biblioteca ou configuração em falta). Podes jogar como convidado.";
+    $("authForm").querySelector(".seg-tabs").style.display = "none";
+    ["email", "pass", "submitBtn"].forEach(function (id) { $(id).style.display = "none"; });
+    return;
+  }
+
+  var sb = window.supabase.createClient(CFG.url, CFG.anonKey);
+  var mode = "login"; // or "signup"
+
+  function setMsg(t, ok) {
+    var el = $("msg"); el.textContent = t || "";
+    el.className = "acct-msg" + (ok ? " ok" : (t ? " bad" : ""));
+  }
+  function translate(m) {
+    if (/Invalid login/i.test(m)) return "Email ou palavra-passe incorretos.";
+    if (/already registered|already been registered/i.test(m)) return "Este email já tem conta. Muda para “Entrar”.";
+    if (/Email not confirmed/i.test(m)) return "Confirma o email antes de entrar.";
+    if (/at least 6/i.test(m)) return "A palavra-passe precisa de pelo menos 6 caracteres.";
+    if (/rate limit|too many/i.test(m)) return "Demasiadas tentativas. Aguarda um pouco.";
+    return m;
+  }
+  function goGame() { window.location.href = "index.html"; }
+
+  function setMode(m) {
+    mode = m;
+    $("tabLogin").classList.toggle("on", m === "login");
+    $("tabSignup").classList.toggle("on", m === "signup");
+    $("formTitle").textContent = m === "login" ? "Entrar" : "Criar conta";
+    $("submitBtn").textContent = m === "login" ? "Entrar" : "Criar conta";
+    $("pass").setAttribute("autocomplete", m === "login" ? "current-password" : "new-password");
+    setMsg("");
+  }
+
+  function submit() {
+    var email = ($("email").value || "").trim(), password = $("pass").value || "";
+    if (!email) { setMsg("Escreve o teu email."); return; }
+    if (password.length < 6) { setMsg("A palavra-passe precisa de pelo menos 6 caracteres."); return; }
+    $("submitBtn").disabled = true;
+
+    if (mode === "login") {
+      setMsg("A entrar…");
+      sb.auth.signInWithPassword({ email: email, password: password }).then(function (res) {
+        $("submitBtn").disabled = false;
+        if (res.error) setMsg(translate(res.error.message));
+        else goGame();
+      });
+    } else {
+      setMsg("A criar conta…");
+      sb.auth.signUp({ email: email, password: password }).then(function (res) {
+        $("submitBtn").disabled = false;
+        if (res.error) setMsg(translate(res.error.message));
+        else if (res.data.session) goGame();               // auto-signed-in
+        else setMsg("Conta criada! Confirma o email e depois entra.", true);
+      });
+    }
+  }
+
+  // wire up
+  $("tabLogin").onclick = function () { setMode("login"); };
+  $("tabSignup").onclick = function () { setMode("signup"); };
+  $("submitBtn").onclick = submit;
+  $("pass").addEventListener("keydown", function (e) { if (e.key === "Enter") submit(); });
+  $("goGame").onclick = goGame;
+  $("signOut").onclick = function () { sb.auth.signOut().then(function () { location.reload(); }); };
+
+  // if already logged in, offer to jump straight into the game
+  sb.auth.getSession().then(function (res) {
+    var session = res.data && res.data.session;
+    if (session && session.user) {
+      $("whoEmail").textContent = session.user.email;
+      $("authForm").classList.add("hidden");
+      $("alreadyIn").classList.remove("hidden");
+    }
+  });
+})();
+</script>
+</body>
+</html>
