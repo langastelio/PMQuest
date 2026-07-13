@@ -47,11 +47,24 @@ begin
   delete from auth.users where id = target;
 end $$;
 
+-- 4b) ADMIN: reset ONE user's XP/score and wipe their saved state.
+create or replace function public.admin_reset_user_xp(target uuid)
+returns void
+language plpgsql security definer
+set search_path = public
+as $$
+begin
+  if not public.is_admin() then raise exception 'not authorized'; end if;
+  update public.profiles set xp = 0, answered = 0 where id = target;
+  delete from public.progress where user_id = target;
+end $$;
+
 -- 5) Permissions: signed-in users may CALL these, but the body still
 --    enforces the admin check, so non-admins just get "not authorized".
 grant execute on function public.is_admin()               to anon, authenticated;
 grant execute on function public.admin_reset_all_xp()     to authenticated;
 grant execute on function public.admin_delete_user(uuid)  to authenticated;
+grant execute on function public.admin_reset_user_xp(uuid) to authenticated;
 
 -- =====================================================================
 --  6) AUTO-CLEANUP — delete accounts that still have 0 XP after 2 days.

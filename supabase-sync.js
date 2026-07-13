@@ -126,6 +126,12 @@
           return true;
         });
       };
+      b0.adminResetUserXp = function (uid) {
+        return sb.rpc("admin_reset_user_xp", { target: uid }).then(function (res) {
+          if (res.error) { console.warn("[admin] reset user:", res.error.message); return false; }
+          return true;
+        });
+      };
       b0.signOut = function () {
         try { localStorage.removeItem("pmquest_guest"); localStorage.removeItem("pmquest_name"); localStorage.removeItem("pmquest_pending_name"); } catch (e) {}
         sb.auth.signOut().then(function () { location.replace("login.html"); }, function () { location.replace("login.html"); });

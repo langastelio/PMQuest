@@ -574,7 +574,10 @@
           '<span class="lead-medal">' + lv.ic + '</span>' +
           '<span class="lead-name">' + esc(r.name || "—") + (mine ? " (tu)" : "") + '</span>' +
           '<span class="lead-xp">' + (r.xp || 0) + ' XP</span>' +
-          (admin && !mine ? '<button class="lead-del" title="Eliminar utilizador" data-id="' + esc(r.id) + '" data-name="' + esc(r.name || "") + '">🗑</button>' : "") +
+          (admin && !mine
+            ? '<button class="lead-reset" title="Zerar XP deste utilizador" data-id="' + esc(r.id) + '" data-name="' + esc(r.name || "") + '">↺</button>' +
+              '<button class="lead-del" title="Eliminar utilizador" data-id="' + esc(r.id) + '" data-name="' + esc(r.name || "") + '">🗑</button>'
+            : "") +
           '</div>';
       }).join("");
 
@@ -584,6 +587,11 @@
           if (!confirm("ADMIN: repor a ZERO o XP de TODOS os utilizadores e apagar o progresso guardado? Isto é irreversível.")) return;
           cloud.adminResetAllXp().then(ok => { toastText(ok ? "XP de todos reposto." : "Falhou (sem permissão de admin?)."); renderLeaderboard(); });
         };
+        list.querySelectorAll(".lead-reset").forEach(b => b.onclick = () => {
+          const id = b.getAttribute("data-id"), nm = b.getAttribute("data-name");
+          if (!confirm('ADMIN: zerar o XP de "' + nm + '"? Isto apaga o progresso deste utilizador. Irreversível.')) return;
+          cloud.adminResetUserXp(id).then(ok => { toastText(ok ? "XP zerado." : "Falhou (sem permissão de admin?)."); renderLeaderboard(); });
+        });
         list.querySelectorAll(".lead-del").forEach(b => b.onclick = () => {
           const id = b.getAttribute("data-id"), nm = b.getAttribute("data-name");
           if (!confirm('ADMIN: eliminar o utilizador "' + nm + '"? Isto apaga a conta e o progresso. Irreversível.')) return;
