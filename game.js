@@ -91,7 +91,7 @@
       seniorCorrect: 0, speedAnswers: 0, reviewCleared: 0,
       seen: [], wrong: [], byTopic: {}, achievements: [], xpHistory: [],
       streak: { count: 0, best: 0, last: "" },
-      settings: { mode: "exam", sound: true, theme: "light", timer: true },
+      settings: { mode: "study", sound: true, theme: "light", timer: true },
     };
   }
   function load() {
@@ -432,7 +432,7 @@
     if (leveledTo) {
       lu.classList.remove("hidden");
       lu.innerHTML = "🎉 Subiste de nível! Agora és <b>" + leveledTo.ic + " " + leveledTo.name + "</b>" +
-        '<div style="margin-top:10px">' + shareBtn("Subi ao nível " + leveledTo.name + " no PM Quest! " + leveledTo.ic + " 🚀 #ProductManagement") + "</div>";
+        '<div style="margin-top:10px">' + shareBtn("Gostaria de partilhar que subi ao nível " + leveledTo.name + " " + leveledTo.ic + " no PM Quest! A desenvolver as minhas competências de Product Management. 🚀 #ProductManagement #PMQuest") + "</div>";
     }
     else lu.classList.add("hidden");
 
@@ -440,7 +440,7 @@
     if (unlocked.length) {
       au.classList.remove("hidden");
       au.innerHTML = unlocked.map(a => '<div class="au"><span class="e">' + a.ic + '</span><div style="flex:1"><div class="nm">' + a.nm + '</div><div class="ds">' + a.ds + "</div>" +
-        '<div style="margin-top:8px">' + shareBtn("Ganhei o badge “" + a.nm + "” " + a.ic + " no PM Quest! #ProductManagement") + "</div></div></div>").join("");
+        '<div style="margin-top:8px">' + shareBtn("Gostaria de partilhar que conquistei o badge “" + a.nm + "” " + a.ic + " no PM Quest! 🏆 A evoluir em Product Management. #ProductManagement #PMQuest") + "</div></div></div>").join("");
     }
     else au.classList.add("hidden");
     wireShares($("screen-res"));
@@ -630,7 +630,6 @@
   $("setTheme").onchange = e => { state.settings.theme = e.target.checked ? "dark" : "light"; applyTheme(); save(); };
   $("setTimer").onchange = e => { state.settings.timer = e.target.checked; save(); };
   $("setExport").onclick = exportProgress;
-  $("setImport").onchange = e => { if (e.target.files[0]) importProgress(e.target.files[0]); };
   $("setLogout").onclick = () => {
     if (window.PMQuestCloud && typeof window.PMQuestCloud.signOut === "function") window.PMQuestCloud.signOut();
     else location.replace("login.html");
