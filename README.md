@@ -61,6 +61,8 @@ Não há passo de _build_ nem instalação de dependências.
 | `game.css`      | Estilos, incluindo tema claro/escuro via variáveis CSS.                       |
 | `game.js`       | Lógica do jogo: níveis, XP, rondas, temporizador, conquistas, estatísticas, persistência. |
 | `questions.js`  | Banco de perguntas — define o global `window.QUESTION_BANK`.                   |
+| `supabase-sync.js` | Camada **opcional** de conta + sincronização na nuvem (ver secção abaixo).  |
+| `supabase/schema.sql` | SQL para criar a tabela e as políticas de segurança no Supabase.         |
 
 A ordem de carregamento importa: `questions.js` **antes** de `game.js`.
 
@@ -114,9 +116,33 @@ Perguntas com texto duplicado são ignoradas automaticamente.
 
 ## 💾 Dados e privacidade
 
-Todo o progresso vive **localmente no teu browser** (`localStorage`, chave `pmquest_v2`).
-Nada é enviado para servidores. Para levar o progresso para outro dispositivo, usa
-**Definições → Progresso → Exportar / Importar**.
+Por omissão, todo o progresso vive **localmente no teu browser** (`localStorage`,
+chave `pmquest_v2`) e nada é enviado para servidores. Para levar o progresso para outro
+dispositivo sem conta, usa **Definições → Progresso → Exportar / Importar**.
+
+## ☁️ Sincronização na nuvem (Supabase) — opcional
+
+O jogo pode, opcionalmente, guardar o progresso na nuvem e sincronizá-lo entre
+dispositivos através do [Supabase](https://supabase.com). **Sem configuração, o jogo
+funciona exatamente como antes** (offline, só `localStorage`).
+
+**Como ativar:**
+
+1. Cria um projeto em Supabase e corre o script [`supabase/schema.sql`](supabase/schema.sql)
+   no **SQL Editor** (cria a tabela `progress` e ativa _Row Level Security_).
+2. Em **Project Settings → API**, copia a **`Project URL`** e a chave **`anon` / `public`**.
+3. Cola-as no topo de [`supabase-sync.js`](supabase-sync.js) (`SUPABASE_URL` e `SUPABASE_ANON_KEY`).
+4. Serve o site por HTTP (a autenticação não funciona a partir de `file://`) — por
+   exemplo com GitHub Pages ou `python -m http.server`.
+
+Depois, em **Definições → Conta & sincronização**, o utilizador cria conta / entra com
+**email + palavra-passe**. Ao entrar, o progresso local e o da nuvem são reconciliados
+(fica o que tiver mais progresso) e, a partir daí, cada gravação é enviada para a nuvem.
+
+**Segurança:** a chave `anon` é **pública por natureza** — a proteção real vem das
+políticas _Row Level Security_ na base de dados, que garantem que cada utilizador só
+acede à sua própria linha. **Nunca** publiques a chave `service_role` nem a
+_password_ da base de dados no código do cliente.
 
 ---
 

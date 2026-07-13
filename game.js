@@ -103,7 +103,13 @@
     return fresh();
   }
   function migrateShape(s) { const f = fresh(); return Object.assign(f, s, { settings: Object.assign(f.settings, s.settings || {}), streak: Object.assign(f.streak, s.streak || {}) }); }
-  function save() { try { localStorage.setItem(STORE, JSON.stringify(state)); } catch (e) {} }
+  function save() {
+    try { localStorage.setItem(STORE, JSON.stringify(state)); } catch (e) {}
+    // Notify the optional cloud-sync layer (no-op if supabase-sync.js is absent).
+    if (window.PMQuestCloud && typeof window.PMQuestCloud.onSave === "function") {
+      try { window.PMQuestCloud.onSave(state); } catch (e) {}
+    }
+  }
   let state = load();
 
   // ---------- helpers ----------
@@ -550,4 +556,15 @@
   applyTheme();
   if (!BANK.length) { $("startBtn").disabled = true; $("startBtn").textContent = "⚠ Banco de questões não carregado"; }
   renderHome(); show("home");
+
+  // ---------- cloud bridge ----------
+  // Read/replace state for the optional supabase-sync.js layer. If that file
+  // is not loaded, this object simply sits unused and the app stays offline.
+  window.PMQuestCloud = {
+    getState: function () { return state; },
+    replaceState: function (s) {
+      try { state = migrateShape(s); save(); applyTheme(); renderHome(); show("home"); } catch (e) {}
+    },
+    onSave: null, // sync layer assigns a function here once a user signs in
+  };
 })();

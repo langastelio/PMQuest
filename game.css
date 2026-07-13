@@ -221,3 +221,11 @@ body.dark .kpi .n{color:var(--accent-lt);}
 
 /* confetti */
 #confetti{position:fixed;inset:0;pointer-events:none;z-index:250;}
+
+/* ---- account / cloud sync (settings modal) ---- */
+.acct-input{width:100%;padding:11px 12px;font-size:14.5px;border:1.5px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font-family:inherit;}
+.acct-input:focus{border-color:var(--accent-lt);outline:none;}
+.acct-msg{font-size:12.5px;color:var(--muted);min-height:16px;line-height:1.3;}
+.acct-msg.ok{color:var(--green-2);} .acct-msg.bad{color:var(--red);}
+body.dark .acct-msg.ok{color:#5fd39a;}
+.acct-user{font-size:13.5px;color:var(--ink);}
