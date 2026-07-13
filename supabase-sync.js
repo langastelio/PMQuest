@@ -78,8 +78,8 @@
 
     // Make sure a public profile row (display name for the leaderboard) exists.
     function ensureProfile(user, state) {
-      return sb.from("profiles").select("name,is_admin").eq("id", user.id).maybeSingle().then(function (res) {
-        if (res.data && res.data.name) { identity.name = res.data.name; identity.is_admin = !!res.data.is_admin; return; }
+      return sb.from("profiles").select("name").eq("id", user.id).maybeSingle().then(function (res) {
+        if (res.data && res.data.name) { identity.name = res.data.name; return; }
         var name = pendingName() || (user.email ? user.email.split("@")[0] : "") ||
                    ("Jogador" + Math.floor(Math.random() * 9000 + 1000));
         return insertProfile(user.id, name, state, 0);
@@ -163,6 +163,9 @@
         else return pushRemote(user.id, local);
       }).then(function () {
         return ensureProfile(user, b.getState());     // leaderboard display name
+      }).then(function () {
+        // Ask the server whether THIS user is an admin (nobody can see others').
+        return sb.rpc("is_admin").then(function (res) { identity.is_admin = (!res.error && res.data === true); });
       }).then(function () {
         return updateProfileStats(user.id, b.getState());
       }).then(function () {

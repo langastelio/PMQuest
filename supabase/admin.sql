@@ -66,6 +66,12 @@ grant execute on function public.admin_reset_all_xp()     to authenticated;
 grant execute on function public.admin_delete_user(uuid)  to authenticated;
 grant execute on function public.admin_reset_user_xp(uuid) to authenticated;
 
+-- 5b) Hide WHO is admin from everyone else. Users can still read the normal
+--     leaderboard columns, but NOT the is_admin column. Admin status is only
+--     revealed to a user about THEMSELVES, via the is_admin() function.
+revoke select on public.profiles from anon, authenticated;
+grant  select (id, name, xp, answered, updated_at) on public.profiles to anon, authenticated;
+
 -- =====================================================================
 --  6) AUTO-CLEANUP — delete accounts that still have 0 XP after 2 days.
 --     (profiles.updated_at changes on every score update, so "xp = 0 and
