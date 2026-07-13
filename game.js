@@ -117,7 +117,7 @@
   function nextLevel(xp) { const i = levelIndex(xp); return i < LEVELS.length - 1 ? LEVELS[i + 1] : null; }
   const $ = id => document.getElementById(id);
   function esc(s) { return String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
-  const SCREENS = ["home", "quiz", "res", "stats"];
+  const SCREENS = ["home", "quiz", "res", "stats", "lead"];
   function show(name) { SCREENS.forEach(k => $("screen-" + k).classList.toggle("hidden", k !== name)); window.scrollTo(0, 0); }
 
   // ---------- sound (Web Audio) ----------
@@ -512,6 +512,33 @@
   }
 
   // =====================================================================
+  //  LEADERBOARD
+  // =====================================================================
+  function renderLeaderboard() {
+    const list = $("leadList");
+    const cloud = window.PMQuestCloud;
+    if (!cloud || typeof cloud.fetchLeaderboard !== "function") {
+      list.innerHTML = '<div class="foot">Leaderboard indisponível — inicia sessão e liga-te à internet.</div>';
+      return;
+    }
+    list.innerHTML = '<div class="foot">A carregar…</div>';
+    const me = (cloud.getIdentity && cloud.getIdentity()) || {};
+    cloud.fetchLeaderboard().then(rows => {
+      if (!rows || !rows.length) { list.innerHTML = '<div class="foot">Ainda ninguém no leaderboard. Sê o primeiro! 🚀</div>'; return; }
+      list.innerHTML = rows.map((r, i) => {
+        const lv = LEVELS[levelIndex(r.xp || 0)];
+        const mine = me.uid && r.id === me.uid;
+        const medal = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : (i + 1);
+        return '<div class="lead-row' + (mine ? " me" : "") + '">' +
+          '<span class="lead-rank">' + medal + '</span>' +
+          '<span class="lead-medal">' + lv.ic + '</span>' +
+          '<span class="lead-name">' + esc(r.name || "—") + (mine ? " (tu)" : "") + '</span>' +
+          '<span class="lead-xp">' + (r.xp || 0) + ' XP</span></div>';
+      }).join("");
+    }).catch(() => { list.innerHTML = '<div class="foot">Não foi possível carregar o leaderboard.</div>'; });
+  }
+
+  // =====================================================================
   //  WIRE UP
   // =====================================================================
   $("startBtn").onclick = () => startRound({ type: "normal" });
@@ -520,6 +547,8 @@
   $("reviewBtn").onclick = () => { if (state.wrong.length) startRound({ type: "review" }); };
   $("statsBtn").onclick = () => { renderStats(); show("stats"); };
   $("statsBack").onclick = () => { renderHome(); show("home"); };
+  $("leadBtn").onclick = () => { renderLeaderboard(); show("lead"); };
+  $("leadBack").onclick = () => { renderHome(); show("home"); };
   $("nextBtn").onclick = nextQuestion;
   $("quitBtn").onclick = () => { stopTimer(); renderHome(); show("home"); };
   $("againBtn").onclick = () => startRound(lastConfig);
@@ -539,7 +568,14 @@
   $("setTimer").onchange = e => { state.settings.timer = e.target.checked; save(); };
   $("setExport").onclick = exportProgress;
   $("setImport").onchange = e => { if (e.target.files[0]) importProgress(e.target.files[0]); };
-  $("setReset").onclick = () => { if (confirm("Recomeçar do zero? Perdes XP, nível, conquistas e histórico.")) { const th = state.settings.theme; state = fresh(); state.settings.theme = th; save(); applyTheme(); closeModals(); renderHome(); show("home"); } };
+  $("setReset").onclick = () => {
+    if (!confirm("Recomeçar do zero termina a sessão e apaga o progresso local. Terás de entrar novamente com email e password, ou continuar com um nome. Continuar?")) return;
+    const th = state.settings.theme;
+    state = fresh(); state.settings.theme = th; save();
+    try { localStorage.removeItem("pmquest_guest"); localStorage.removeItem("pmquest_name"); localStorage.removeItem("pmquest_pending_name"); } catch (e) {}
+    if (window.PMQuestCloud && typeof window.PMQuestCloud.signOut === "function") window.PMQuestCloud.signOut();
+    else location.replace("login.html");
+  };
   $("setClose").onclick = closeModals;
   document.querySelectorAll(".overlay").forEach(o => o.onclick = e => { if (e.target === o) closeModals(); });
 

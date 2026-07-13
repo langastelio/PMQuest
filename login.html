@@ -20,13 +20,14 @@
   body.dark .seg-tabs button.on{color:var(--accent-lt);}
   .login-field{margin-bottom:12px;}
   .login-field label{display:block;font-size:12px;font-weight:700;color:var(--ink);margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em;}
-  .login-divider{display:flex;align-items:center;gap:12px;color:var(--muted);font-size:12px;margin:20px 0 16px;}
+  .login-divider{display:flex;align-items:center;gap:12px;color:var(--muted);font-size:12px;margin:22px 0 16px;font-weight:700;}
   .login-divider::before,.login-divider::after{content:"";flex:1;height:1px;background:var(--line);}
-  .login-guest{display:block;text-align:center;color:var(--accent);font-weight:700;font-size:14px;text-decoration:none;padding:12px;}
+  .login-guest{display:block;text-align:center;color:var(--accent);font-weight:700;font-size:13.5px;text-decoration:none;padding:14px 0 0;}
   body.dark .login-guest{color:var(--accent-lt);}
   .login-foot{margin-top:20px;font-size:11.5px;color:var(--muted);text-align:center;max-width:420px;line-height:1.5;}
   .login-signedin{background:var(--bg);border:1px solid var(--green);border-radius:12px;padding:14px 16px;margin-bottom:16px;font-size:14px;color:var(--ink);}
   body.dark .login-signedin{border-color:var(--green-2);}
+  .login-hint{font-size:11.5px;color:var(--muted);margin:-4px 0 10px;}
 </style>
 </head>
 <body>
@@ -38,25 +39,29 @@
   </div>
 
   <div class="card login-card">
-    <!-- shown when already logged in -->
+    <!-- already logged in -->
     <div id="alreadyIn" class="hidden">
       <h2>Bem-vindo de volta 👋</h2>
-      <div class="login-signedin">Sessão iniciada como <b id="whoEmail"></b>.</div>
+      <div class="login-signedin">Sessão iniciada como <b id="whoName"></b>.</div>
       <button class="btn btn-primary" id="goGame">▶ Entrar no jogo</button>
       <div style="height:10px"></div>
       <button class="btn btn-ghost" id="signOut">Terminar sessão</button>
     </div>
 
-    <!-- login / signup form -->
+    <!-- login / signup -->
     <div id="authForm">
       <h2 id="formTitle">Entrar</h2>
-      <div class="sub" id="formSub">Guarda o teu progresso e sincroniza entre dispositivos.</div>
+      <div class="sub" id="formSub">Guarda o teu progresso e entra no leaderboard.</div>
 
       <div class="seg-tabs">
         <button id="tabLogin" class="on">Entrar</button>
         <button id="tabSignup">Criar conta</button>
       </div>
 
+      <div class="login-field" id="nameField" style="display:none;">
+        <label for="name">Nome</label>
+        <input id="name" type="text" class="acct-input" placeholder="O teu nome" autocomplete="nickname" maxlength="24">
+      </div>
       <div class="login-field">
         <label for="email">Email</label>
         <input id="email" type="email" class="acct-input" placeholder="email@exemplo.com" autocomplete="email">
@@ -67,11 +72,19 @@
       </div>
 
       <div id="msg" class="acct-msg" style="margin-bottom:12px;"></div>
-
       <button class="btn btn-primary" id="submitBtn">Entrar</button>
 
-      <div class="login-divider">ou</div>
-      <a class="login-guest" href="index.html">Jogar como convidado (só neste dispositivo) →</a>
+      <div class="login-divider">ou entra só com um nome</div>
+
+      <div class="login-field">
+        <label for="guestName">Nome (sem palavra-passe)</label>
+        <input id="guestName" type="text" class="acct-input" placeholder="O teu nome" autocomplete="nickname" maxlength="24">
+      </div>
+      <div class="login-hint">Entras sem password e apareces no leaderboard. O nome tem de ser único.</div>
+      <div id="guestMsg" class="acct-msg" style="margin-bottom:10px;"></div>
+      <button class="btn btn-ghost" id="guestBtn">Continuar com o nome →</button>
+
+      <a class="login-guest" href="#" id="pureGuest">Jogar sem conta (só neste dispositivo, sem leaderboard) →</a>
     </div>
   </div>
 
@@ -85,11 +98,20 @@
   "use strict";
   var $ = function (id) { return document.getElementById(id); };
 
-  // Apply the same light/dark theme the game uses.
+  // Match the game's light/dark theme.
   try {
     var st = JSON.parse(localStorage.getItem("pmquest_v2") || "null");
     if (st && st.settings && st.settings.theme === "dark") document.body.classList.add("dark");
   } catch (e) {}
+
+  function goGame() { window.location.href = "index.html"; }
+
+  // Pure-guest fallback works even without Supabase (offline / blocked lib).
+  $("pureGuest").onclick = function (e) {
+    e.preventDefault();
+    try { localStorage.setItem("pmquest_guest", "1"); } catch (err) {}
+    goGame();
+  };
 
   var CFG = window.PMQUEST_SUPABASE || {};
   var ready = window.supabase && CFG.url && CFG.anonKey &&
@@ -97,17 +119,20 @@
 
   if (!ready) {
     $("cfgFoot").textContent =
-      "⚠ Autenticação indisponível (biblioteca ou configuração em falta). Podes jogar como convidado.";
+      "⚠ Autenticação indisponível (biblioteca ou configuração em falta). Podes jogar sem conta.";
     $("authForm").querySelector(".seg-tabs").style.display = "none";
-    ["email", "pass", "submitBtn"].forEach(function (id) { $(id).style.display = "none"; });
+    ["nameField", "email", "pass", "submitBtn", "guestName", "guestBtn"].forEach(function (id) {
+      var el = $(id); if (el) el.style.display = "none";
+    });
+    $("formTitle").textContent = "Jogar sem conta";
     return;
   }
 
   var sb = window.supabase.createClient(CFG.url, CFG.anonKey);
-  var mode = "login"; // or "signup"
+  var mode = "login";
 
-  function setMsg(t, ok) {
-    var el = $("msg"); el.textContent = t || "";
+  function setMsg(el, t, ok) {
+    el.textContent = t || "";
     el.className = "acct-msg" + (ok ? " ok" : (t ? " bad" : ""));
   }
   function translate(m) {
@@ -116,42 +141,77 @@
     if (/Email not confirmed/i.test(m)) return "Confirma o email antes de entrar.";
     if (/at least 6/i.test(m)) return "A palavra-passe precisa de pelo menos 6 caracteres.";
     if (/rate limit|too many/i.test(m)) return "Demasiadas tentativas. Aguarda um pouco.";
+    if (/Anonymous sign-ins are disabled|not enabled|signups.*disabled/i.test(m))
+      return "Ativa os “logins anónimos” no Supabase (Authentication → Providers → Anonymous).";
     return m;
   }
-  function goGame() { window.location.href = "index.html"; }
+  function storePendingName(n) {
+    try { localStorage.setItem("pmquest_pending_name", n); localStorage.setItem("pmquest_name", n); } catch (e) {}
+  }
+  // Case-insensitive exact-match check against existing display names.
+  function nameTaken(name) {
+    return sb.from("profiles").select("id").ilike("name", name).limit(1)
+      .then(function (res) { if (res.error) return false; return res.data && res.data.length > 0; });
+  }
 
   function setMode(m) {
     mode = m;
     $("tabLogin").classList.toggle("on", m === "login");
     $("tabSignup").classList.toggle("on", m === "signup");
+    $("nameField").style.display = m === "signup" ? "block" : "none";
     $("formTitle").textContent = m === "login" ? "Entrar" : "Criar conta";
     $("submitBtn").textContent = m === "login" ? "Entrar" : "Criar conta";
     $("pass").setAttribute("autocomplete", m === "login" ? "current-password" : "new-password");
-    setMsg("");
+    setMsg($("msg"), "");
   }
 
   function submit() {
     var email = ($("email").value || "").trim(), password = $("pass").value || "";
-    if (!email) { setMsg("Escreve o teu email."); return; }
-    if (password.length < 6) { setMsg("A palavra-passe precisa de pelo menos 6 caracteres."); return; }
-    $("submitBtn").disabled = true;
+    var msg = $("msg");
+    if (!email) { setMsg(msg, "Escreve o teu email."); return; }
+    if (password.length < 6) { setMsg(msg, "A palavra-passe precisa de pelo menos 6 caracteres."); return; }
 
     if (mode === "login") {
-      setMsg("A entrar…");
+      $("submitBtn").disabled = true; setMsg(msg, "A entrar…");
       sb.auth.signInWithPassword({ email: email, password: password }).then(function (res) {
         $("submitBtn").disabled = false;
-        if (res.error) setMsg(translate(res.error.message));
-        else goGame();
+        if (res.error) setMsg(msg, translate(res.error.message)); else goGame();
       });
-    } else {
-      setMsg("A criar conta…");
+      return;
+    }
+
+    // signup: needs a unique name
+    var name = ($("name").value || "").trim();
+    if (name.length < 2) { setMsg(msg, "Escreve o teu nome (mín. 2 caracteres)."); return; }
+    $("submitBtn").disabled = true; setMsg(msg, "A verificar o nome…");
+    nameTaken(name).then(function (taken) {
+      if (taken) { $("submitBtn").disabled = false; setMsg(msg, "Esse nome já está a ser usado. Escolhe outro."); return; }
+      setMsg(msg, "A criar conta…");
       sb.auth.signUp({ email: email, password: password }).then(function (res) {
         $("submitBtn").disabled = false;
-        if (res.error) setMsg(translate(res.error.message));
-        else if (res.data.session) goGame();               // auto-signed-in
-        else setMsg("Conta criada! Confirma o email e depois entra.", true);
+        if (res.error) { setMsg(msg, translate(res.error.message)); return; }
+        storePendingName(name);
+        if (res.data.session) goGame();                              // auto-signed-in
+        else setMsg(msg, "Conta criada! Confirma o email e depois entra.", true);
       });
-    }
+    });
+  }
+
+  function guestEnter() {
+    var name = ($("guestName").value || "").trim();
+    var gm = $("guestMsg");
+    if (name.length < 2) { setMsg(gm, "Escreve um nome (mín. 2 caracteres)."); return; }
+    $("guestBtn").disabled = true; setMsg(gm, "A verificar o nome…");
+    nameTaken(name).then(function (taken) {
+      if (taken) { $("guestBtn").disabled = false; setMsg(gm, "Esse nome já está a ser usado. Escolhe outro."); return; }
+      setMsg(gm, "A entrar…");
+      sb.auth.signInAnonymously().then(function (res) {
+        $("guestBtn").disabled = false;
+        if (res.error) { setMsg(gm, translate(res.error.message)); return; }
+        storePendingName(name);
+        goGame();
+      });
+    });
   }
 
   // wire up
@@ -159,14 +219,21 @@
   $("tabSignup").onclick = function () { setMode("signup"); };
   $("submitBtn").onclick = submit;
   $("pass").addEventListener("keydown", function (e) { if (e.key === "Enter") submit(); });
+  $("guestBtn").onclick = guestEnter;
+  $("guestName").addEventListener("keydown", function (e) { if (e.key === "Enter") guestEnter(); });
   $("goGame").onclick = goGame;
-  $("signOut").onclick = function () { sb.auth.signOut().then(function () { location.reload(); }); };
+  $("signOut").onclick = function () {
+    try { localStorage.removeItem("pmquest_guest"); localStorage.removeItem("pmquest_name"); localStorage.removeItem("pmquest_pending_name"); } catch (e) {}
+    sb.auth.signOut().then(function () { location.reload(); });
+  };
 
-  // if already logged in, offer to jump straight into the game
+  // already signed in? offer to jump into the game.
   sb.auth.getSession().then(function (res) {
     var session = res.data && res.data.session;
     if (session && session.user) {
-      $("whoEmail").textContent = session.user.email;
+      var who = session.user.email;
+      if (!who) { try { who = localStorage.getItem("pmquest_name") || "convidado"; } catch (e) { who = "convidado"; } }
+      $("whoName").textContent = who;
       $("authForm").classList.add("hidden");
       $("alreadyIn").classList.remove("hidden");
     }

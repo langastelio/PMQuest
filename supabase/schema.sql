@@ -45,3 +45,43 @@ drop trigger if exists progress_touch_updated_at on public.progress;
 create trigger progress_touch_updated_at
   before update on public.progress
   for each row execute function public.touch_updated_at();
+
+-- =====================================================================
+--  5) Profiles / leaderboard — public display name + score per user.
+--     Works for both email accounts and anonymous ("name only") users.
+-- =====================================================================
+create table if not exists public.profiles (
+  id         uuid primary key references auth.users (id) on delete cascade,
+  name       text        not null,
+  xp         integer     not null default 0,
+  answered   integer     not null default 0,
+  updated_at timestamptz not null default now()
+);
+
+-- Case-insensitive unique display names ("Ana" == "ana" == "ANA").
+create unique index if not exists profiles_name_lower_idx on public.profiles (lower(name));
+
+alter table public.profiles enable row level security;
+
+-- Anyone (even signed-out visitors) can READ the leaderboard...
+drop policy if exists "leaderboard read" on public.profiles;
+create policy "leaderboard read"
+  on public.profiles for select
+  using (true);
+
+-- ...but a user may create/update ONLY their own profile row.
+drop policy if exists "insert own profile" on public.profiles;
+create policy "insert own profile"
+  on public.profiles for insert
+  with check (auth.uid() = id);
+
+drop policy if exists "update own profile" on public.profiles;
+create policy "update own profile"
+  on public.profiles for update
+  using (auth.uid() = id)
+  with check (auth.uid() = id);
+
+drop trigger if exists profiles_touch_updated_at on public.profiles;
+create trigger profiles_touch_updated_at
+  before update on public.profiles
+  for each row execute function public.touch_updated_at();

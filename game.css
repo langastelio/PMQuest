@@ -229,3 +229,13 @@ body.dark .kpi .n{color:var(--accent-lt);}
 .acct-msg.ok{color:var(--green-2);} .acct-msg.bad{color:var(--red);}
 body.dark .acct-msg.ok{color:#5fd39a;}
 .acct-user{font-size:13.5px;color:var(--ink);}
+
+/* ---- leaderboard ---- */
+.lead-row{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--line);border-radius:12px;margin-bottom:8px;background:var(--paper);}
+.lead-row.me{border-color:var(--gold);background:#fff9e8;}
+body.dark .lead-row.me{background:#302713;}
+.lead-rank{width:30px;text-align:center;font-weight:800;color:var(--muted);font-size:15px;flex-shrink:0;}
+.lead-medal{font-size:20px;flex-shrink:0;}
+.lead-name{flex:1;font-weight:700;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.lead-xp{font-weight:800;color:var(--accent);font-size:14px;flex-shrink:0;}
+body.dark .lead-xp{color:var(--accent-lt);}

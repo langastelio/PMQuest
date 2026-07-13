@@ -7,6 +7,20 @@
 <link rel="stylesheet" href="game.css">
 </head>
 <body>
+<script>
+/* Auth gate: if there's no Supabase session and no guest flag, go to the
+   login page first. Runs before render to avoid a flash of the game. */
+(function () {
+  try {
+    var hasSession = false;
+    for (var i = 0; i < localStorage.length; i++) {
+      if (/^sb-.+-auth-token$/.test(localStorage.key(i))) { hasSession = true; break; }
+    }
+    var guest = localStorage.getItem("pmquest_guest") === "1";
+    if (!hasSession && !guest) { location.replace("login.html"); }
+  } catch (e) {}
+})();
+</script>
 <canvas id="confetti"></canvas>
 
 <div class="app">
@@ -51,6 +65,7 @@
           <button class="btn btn-ghost" id="filterBtn"><span class="em">🎛️</span> Filtrar</button>
           <button class="btn btn-ghost" id="reviewBtn"><span class="em">🔁</span> Rever Erros<span> (0)</span></button>
         </div>
+        <button class="textlink" id="leadBtn">🏆 Leaderboard →</button>
         <button class="textlink" id="statsBtn">📊 Estatísticas &amp; conquistas →</button>
       </div>
       <div class="foot">Banco com <b id="bankTotal">0</b> questões · 10 por ronda · sem repetições</div>
@@ -131,6 +146,18 @@
       <div class="ach-grid-wrap">
         <h3>Conquistas</h3><div class="ach-grid" id="achGrid"></div>
       </div>
+    </div>
+  </div>
+
+  <!-- ============ LEADERBOARD ============ -->
+  <div id="screen-lead" class="hidden">
+    <div class="card">
+      <div class="screen-head">
+        <button class="icon-btn" id="leadBack" aria-label="Voltar">←</button>
+        <h2>🏆 Leaderboard</h2>
+      </div>
+      <div class="sub" style="font-size:13px;color:var(--muted);margin-bottom:14px;">Melhores jogadores por XP.</div>
+      <div id="leadList"><div class="foot">A carregar…</div></div>
     </div>
   </div>
 

@@ -67,13 +67,68 @@
         });
     }
 
+    // ---- profiles / leaderboard ----
+    var identity = { uid: null, name: null, anonymous: false };
+
+    function pendingName() {
+      try { return (localStorage.getItem("pmquest_pending_name") || localStorage.getItem("pmquest_name") || "").trim(); }
+      catch (e) { return ""; }
+    }
+    function storeName(n) { try { localStorage.setItem("pmquest_name", n); localStorage.removeItem("pmquest_pending_name"); } catch (e) {} }
+
+    // Make sure a public profile row (display name for the leaderboard) exists.
+    function ensureProfile(user, state) {
+      return sb.from("profiles").select("name").eq("id", user.id).maybeSingle().then(function (res) {
+        if (res.data && res.data.name) { identity.name = res.data.name; return; }
+        var name = pendingName() || (user.email ? user.email.split("@")[0] : "") ||
+                   ("Jogador" + Math.floor(Math.random() * 9000 + 1000));
+        return insertProfile(user.id, name, state, 0);
+      });
+    }
+    function insertProfile(uid, name, state, attempt) {
+      return sb.from("profiles").insert({
+        id: uid, name: name, xp: (state && state.xp) || 0, answered: (state && state.answered) || 0
+      }).then(function (res) {
+        if (!res.error) { identity.name = name; storeName(name); return; }
+        // Name already taken (unique index): append a number and retry a few times.
+        if (/duplicate|unique/i.test(res.error.message) && attempt < 3) {
+          return insertProfile(uid, name.replace(/\d+$/, "") + Math.floor(Math.random() * 900 + 100), state, attempt + 1);
+        }
+        console.warn("[sync] profile:", res.error.message);
+      });
+    }
+    function updateProfileStats(uid, state) {
+      return sb.from("profiles").update({ xp: state.xp || 0, answered: state.answered || 0 }).eq("id", uid);
+    }
+    function fetchLeaderboard() {
+      return sb.from("profiles").select("id,name,xp").order("xp", { ascending: false })
+        .order("answered", { ascending: false }).limit(50)
+        .then(function (res) {
+          if (res.error) { console.warn("[sync] leaderboard:", res.error.message); return []; }
+          return res.data || [];
+        });
+    }
+
+    // Expose leaderboard/identity/sign-out to game.js right away (before sign-in).
+    var b0 = bridge();
+    if (b0) {
+      b0.fetchLeaderboard = fetchLeaderboard;
+      b0.getIdentity = function () { return identity; };
+      b0.signOut = function () {
+        try { localStorage.removeItem("pmquest_guest"); localStorage.removeItem("pmquest_name"); localStorage.removeItem("pmquest_pending_name"); } catch (e) {}
+        sb.auth.signOut().then(function () { location.replace("login.html"); }, function () { location.replace("login.html"); });
+      };
+    }
+
     // ---- reconcile local vs remote on sign-in ----
     function onSignedIn(session) {
       var b = bridge(); if (!b) return;
       var user = session.user;
+      identity.uid = user.id;
+      identity.anonymous = !user.email;
       if ($("acctSignedOut")) $("acctSignedOut").style.display = "none";
       if ($("acctSignedIn")) $("acctSignedIn").style.display = "flex";
-      if ($("acctWho")) $("acctWho").textContent = user.email;
+      if ($("acctWho")) $("acctWho").textContent = user.email || pendingName() || "convidado";
       setMsg("");
       setSync("a sincronizar…");
 
@@ -89,17 +144,25 @@
         if (remoteScore >= localScore) { b.replaceState(remote); setSync("✔ sincronizado"); }
         else return pushRemote(user.id, local);
       }).then(function () {
-        // From now on, each local save pushes to the cloud (debounced).
+        return ensureProfile(user, b.getState());     // leaderboard display name
+      }).then(function () {
+        return updateProfileStats(user.id, b.getState());
+      }).then(function () {
+        if ($("acctWho")) $("acctWho").textContent = user.email || identity.name || "convidado";
+        // From now on, each local save pushes progress + leaderboard score (debounced).
         b.onSave = function (state) {
           clearTimeout(pushTimer);
           setSync("a guardar…");
-          pushTimer = setTimeout(function () { pushRemote(user.id, state); }, 800);
+          pushTimer = setTimeout(function () {
+            pushRemote(user.id, state).then(function () { return updateProfileStats(user.id, state); });
+          }, 800);
         };
       });
     }
 
     function onSignedOut() {
       var b = bridge(); if (b) b.onSave = null;
+      identity.uid = null; identity.name = null; identity.anonymous = false;
       if ($("acctSignedIn")) $("acctSignedIn").style.display = "none";
       if ($("acctSignedOut")) $("acctSignedOut").style.display = "flex";
       setSync(""); setMsg("");
