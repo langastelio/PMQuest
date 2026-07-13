@@ -68,7 +68,7 @@
     }
 
     // ---- profiles / leaderboard ----
-    var identity = { uid: null, name: null, anonymous: false };
+    var identity = { uid: null, name: null, anonymous: false, is_admin: false };
 
     function pendingName() {
       try { return (localStorage.getItem("pmquest_pending_name") || localStorage.getItem("pmquest_name") || "").trim(); }
@@ -78,8 +78,8 @@
 
     // Make sure a public profile row (display name for the leaderboard) exists.
     function ensureProfile(user, state) {
-      return sb.from("profiles").select("name").eq("id", user.id).maybeSingle().then(function (res) {
-        if (res.data && res.data.name) { identity.name = res.data.name; return; }
+      return sb.from("profiles").select("name,is_admin").eq("id", user.id).maybeSingle().then(function (res) {
+        if (res.data && res.data.name) { identity.name = res.data.name; identity.is_admin = !!res.data.is_admin; return; }
         var name = pendingName() || (user.email ? user.email.split("@")[0] : "") ||
                    ("Jogador" + Math.floor(Math.random() * 9000 + 1000));
         return insertProfile(user.id, name, state, 0);
@@ -114,6 +114,18 @@
     if (b0) {
       b0.fetchLeaderboard = fetchLeaderboard;
       b0.getIdentity = function () { return identity; };
+      b0.adminResetAllXp = function () {
+        return sb.rpc("admin_reset_all_xp").then(function (res) {
+          if (res.error) { console.warn("[admin] reset:", res.error.message); return false; }
+          return true;
+        });
+      };
+      b0.adminDeleteUser = function (uid) {
+        return sb.rpc("admin_delete_user", { target: uid }).then(function (res) {
+          if (res.error) { console.warn("[admin] delete:", res.error.message); return false; }
+          return true;
+        });
+      };
       b0.signOut = function () {
         try { localStorage.removeItem("pmquest_guest"); localStorage.removeItem("pmquest_name"); localStorage.removeItem("pmquest_pending_name"); } catch (e) {}
         sb.auth.signOut().then(function () { location.replace("login.html"); }, function () { location.replace("login.html"); });
@@ -162,7 +174,7 @@
 
     function onSignedOut() {
       var b = bridge(); if (b) b.onSave = null;
-      identity.uid = null; identity.name = null; identity.anonymous = false;
+      identity.uid = null; identity.name = null; identity.anonymous = false; identity.is_admin = false;
       if ($("acctSignedIn")) $("acctSignedIn").style.display = "none";
       if ($("acctSignedOut")) $("acctSignedOut").style.display = "flex";
       setSync(""); setMsg("");

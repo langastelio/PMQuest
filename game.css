@@ -239,3 +239,11 @@ body.dark .lead-row.me{background:#302713;}
 .lead-name{flex:1;font-weight:700;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .lead-xp{font-weight:800;color:var(--accent);font-size:14px;flex-shrink:0;}
 body.dark .lead-xp{color:var(--accent-lt);}
+.lead-del{border:0;background:var(--red);color:#fff;border-radius:8px;width:30px;height:30px;font-size:14px;cursor:pointer;flex-shrink:0;}
+.lead-admin-bar{display:flex;gap:8px;margin-bottom:14px;padding:10px;border:1px dashed var(--red);border-radius:10px;background:#fdecea;}
+body.dark .lead-admin-bar{background:#3a1f1d;}
+.lead-admin-bar .lb{font-size:12px;font-weight:800;color:var(--red);align-self:center;margin-right:auto;}
+
+/* ---- LinkedIn share button ---- */
+.btn-share{display:inline-flex;align-items:center;gap:7px;background:#0a66c2;color:#fff;border:0;border-radius:8px;padding:9px 15px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;}
+.btn-share:hover{background:#004182;}

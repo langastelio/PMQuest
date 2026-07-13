@@ -64,7 +64,8 @@ Não há passo de _build_ nem instalação de dependências.
 | `login.html`    | Página de login/registo dedicada (Supabase), com opção "jogar como convidado". |
 | `supabase-config.js` | Configuração partilhada do Supabase (URL + chave pública).               |
 | `supabase-sync.js` | Camada **opcional** de conta + sincronização na nuvem (ver secção abaixo).  |
-| `supabase/schema.sql` | SQL para criar a tabela e as políticas de segurança no Supabase.         |
+| `supabase/schema.sql` | SQL base: tabelas `progress` e `profiles` (leaderboard) + segurança.     |
+| `supabase/admin.sql` | SQL **avançado**: funções de admin (reset XP / apagar users) e limpeza automática de contas inativas. |
 | `vendor/supabase.js` | Biblioteca `supabase-js` alojada localmente (evita bloqueios de CDN).    |
 | `docs/firebase-guide.md` | Guia de referência para, em alternativa, ligar ao **Firebase**.      |
 

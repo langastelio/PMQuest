@@ -34,6 +34,7 @@
     { id: "reachSenior", ic: "🚀", nm: "Product Sénior",   ds: "Atinge o nível Sénior",         cond: s => levelIndex(s.xp) >= 4 },
     { id: "reachLider",  ic: "👑", nm: "Líder de Produto",  ds: "Atinge o nível Líder",          cond: s => levelIndex(s.xp) >= 5 },
     { id: "comeback",    ic: "🔁", nm: "Regresso",         ds: "Domina 10 erros na revisão",    cond: s => s.reviewCleared >= 10 },
+    { id: "allq",        ic: "🎓", nm: "Banco Completo",    ds: "Respondeu a TODAS as perguntas", cond: s => BANK.length > 0 && s.seen.length >= BANK.length },
   ];
 
   // topic keyword -> external reference (for "Saber mais")
@@ -390,6 +391,32 @@
     show("res");
   }
 
+  // ---------- LinkedIn sharing ----------
+  // The app's public URL, used for the LinkedIn preview. Change if you host elsewhere.
+  const SHARE_URL = (location.protocol.indexOf("http") === 0)
+    ? location.origin + location.pathname.replace(/[^/]*$/, "")
+    : "https://langastelio.github.io/PMQuest/";
+
+  function toastText(t) {
+    const el = $("toast"); el.innerHTML = '<div class="nm">' + esc(t) + '</div>';
+    el.classList.add("show"); setTimeout(() => el.classList.remove("show"), 3400);
+  }
+  function shareLinkedIn(caption) {
+    const share = "https://www.linkedin.com/sharing/share-offsite/?url=" + encodeURIComponent(SHARE_URL);
+    // LinkedIn no longer accepts custom text via URL, so copy a caption to paste.
+    try { if (navigator.clipboard) navigator.clipboard.writeText(caption + " " + SHARE_URL); } catch (e) {}
+    window.open(share, "_blank", "noopener,noreferrer,width=680,height=640");
+    toastText("Legenda copiada — cola na tua publicação do LinkedIn! 🔗");
+  }
+  function shareBtn(caption) {
+    return '<button class="btn-share" data-cap="' + esc(caption) + '">in Partilhar no LinkedIn</button>';
+  }
+  function wireShares(container) {
+    container.querySelectorAll(".btn-share").forEach(b => {
+      b.onclick = () => shareLinkedIn(b.getAttribute("data-cap"));
+    });
+  }
+
   function renderResults(correct, xp, bonus, wrongs, leveledTo, unlocked, perfect) {
     const total = round.items.length, pct = Math.round(correct / total * 100);
     $("resScore").innerHTML = correct + '<small>/' + total + "</small>";
@@ -402,12 +429,21 @@
       '<span class="sub">' + pct + "% precisão</span>";
 
     const lu = $("levelup");
-    if (leveledTo) { lu.classList.remove("hidden"); lu.innerHTML = "🎉 Subiste de nível! Agora és <b>" + leveledTo.ic + " " + leveledTo.name + "</b>"; }
+    if (leveledTo) {
+      lu.classList.remove("hidden");
+      lu.innerHTML = "🎉 Subiste de nível! Agora és <b>" + leveledTo.ic + " " + leveledTo.name + "</b>" +
+        '<div style="margin-top:10px">' + shareBtn("Subi ao nível " + leveledTo.name + " no PM Quest! " + leveledTo.ic + " 🚀 #ProductManagement") + "</div>";
+    }
     else lu.classList.add("hidden");
 
     const au = $("achUnlocked");
-    if (unlocked.length) { au.classList.remove("hidden"); au.innerHTML = unlocked.map(a => '<div class="au"><span class="e">' + a.ic + '</span><div><div class="nm">' + a.nm + '</div><div class="ds">' + a.ds + "</div></div></div>").join(""); }
+    if (unlocked.length) {
+      au.classList.remove("hidden");
+      au.innerHTML = unlocked.map(a => '<div class="au"><span class="e">' + a.ic + '</span><div style="flex:1"><div class="nm">' + a.nm + '</div><div class="ds">' + a.ds + "</div>" +
+        '<div style="margin-top:8px">' + shareBtn("Ganhei o badge “" + a.nm + "” " + a.ic + " no PM Quest! #ProductManagement") + "</div></div></div>").join("");
+    }
     else au.classList.add("hidden");
+    wireShares($("screen-res"));
 
     const rev = $("reviewList");
     if (!wrongs.length) { $("reviewTitle").textContent = "Resultado"; rev.innerHTML = '<div class="allgood">✅ Sem erros nesta ronda — dominaste todas as questões!</div>'; }
@@ -523,9 +559,13 @@
     }
     list.innerHTML = '<div class="foot">A carregar…</div>';
     const me = (cloud.getIdentity && cloud.getIdentity()) || {};
+    const admin = !!me.is_admin;
     cloud.fetchLeaderboard().then(rows => {
       if (!rows || !rows.length) { list.innerHTML = '<div class="foot">Ainda ninguém no leaderboard. Sê o primeiro! 🚀</div>'; return; }
-      list.innerHTML = rows.map((r, i) => {
+      const adminBar = admin
+        ? '<div class="lead-admin-bar"><span class="lb">🛠️ ADMIN</span><button class="btn btn-ghost" id="adminResetXp" style="min-height:auto;padding:8px 12px;font-size:13px;width:auto;">↺ Reset de todos os XP</button></div>'
+        : "";
+      list.innerHTML = adminBar + rows.map((r, i) => {
         const lv = LEVELS[levelIndex(r.xp || 0)];
         const mine = me.uid && r.id === me.uid;
         const medal = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : (i + 1);
@@ -533,8 +573,23 @@
           '<span class="lead-rank">' + medal + '</span>' +
           '<span class="lead-medal">' + lv.ic + '</span>' +
           '<span class="lead-name">' + esc(r.name || "—") + (mine ? " (tu)" : "") + '</span>' +
-          '<span class="lead-xp">' + (r.xp || 0) + ' XP</span></div>';
+          '<span class="lead-xp">' + (r.xp || 0) + ' XP</span>' +
+          (admin && !mine ? '<button class="lead-del" title="Eliminar utilizador" data-id="' + esc(r.id) + '" data-name="' + esc(r.name || "") + '">🗑</button>' : "") +
+          '</div>';
       }).join("");
+
+      if (admin) {
+        const reset = $("adminResetXp");
+        if (reset) reset.onclick = () => {
+          if (!confirm("ADMIN: repor a ZERO o XP de TODOS os utilizadores e apagar o progresso guardado? Isto é irreversível.")) return;
+          cloud.adminResetAllXp().then(ok => { toastText(ok ? "XP de todos reposto." : "Falhou (sem permissão de admin?)."); renderLeaderboard(); });
+        };
+        list.querySelectorAll(".lead-del").forEach(b => b.onclick = () => {
+          const id = b.getAttribute("data-id"), nm = b.getAttribute("data-name");
+          if (!confirm('ADMIN: eliminar o utilizador "' + nm + '"? Isto apaga a conta e o progresso. Irreversível.')) return;
+          cloud.adminDeleteUser(id).then(ok => { toastText(ok ? "Utilizador eliminado." : "Falhou (sem permissão de admin?)."); renderLeaderboard(); });
+        });
+      }
     }).catch(() => { list.innerHTML = '<div class="foot">Não foi possível carregar o leaderboard.</div>'; });
   }
 
@@ -568,6 +623,10 @@
   $("setTimer").onchange = e => { state.settings.timer = e.target.checked; save(); };
   $("setExport").onclick = exportProgress;
   $("setImport").onchange = e => { if (e.target.files[0]) importProgress(e.target.files[0]); };
+  $("setLogout").onclick = () => {
+    if (window.PMQuestCloud && typeof window.PMQuestCloud.signOut === "function") window.PMQuestCloud.signOut();
+    else location.replace("login.html");
+  };
   $("setReset").onclick = () => {
     if (!confirm("Recomeçar do zero termina a sessão e apaga o progresso local. Terás de entrar novamente com email e password, ou continuar com um nome. Continuar?")) return;
     const th = state.settings.theme;

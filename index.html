@@ -4,6 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PM Quest — Jogo de Product Management</title>
+<!-- Open Graph: controls how the link looks when shared on LinkedIn -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="PM Quest — Jogo de Product Management">
+<meta property="og:description" content="Treina Product Management com mais de 1000 perguntas, sobe de nível, ganha badges e entra no leaderboard.">
 <link rel="stylesheet" href="game.css">
 </head>
 <body>
@@ -216,6 +220,10 @@
         <button class="btn btn-ghost" id="setExport" style="min-height:40px;padding:8px 12px;font-size:13px;">⬇ Exportar</button>
         <label class="btn btn-ghost" style="min-height:40px;padding:8px 12px;font-size:13px;cursor:pointer;">⬆ Importar<input type="file" id="setImport" accept="application/json" hidden></label>
       </div>
+    </div>
+    <div class="setrow">
+      <div class="lb">Sessão<small>Termina a sessão sem apagar o progresso guardado neste dispositivo.</small></div>
+      <button class="btn btn-ghost" id="setLogout" style="min-height:40px;padding:8px 14px;font-size:13px;width:auto;flex-shrink:0;">↪ Terminar sessão</button>
     </div>
     <div class="setrow">
       <button class="link-danger" id="setReset">↺ Recomeçar do zero</button>
