@@ -150,13 +150,26 @@
       setMsg("");
       setSync("a sincronizar…");
 
+      // Detect an account switch in THIS browser. The local progress belongs to
+      // whoever was signed in before; a different user must never inherit it.
+      var lastUid = null;
+      try { lastUid = localStorage.getItem("pmquest_uid"); } catch (e) {}
+      var switched = lastUid && lastUid !== user.id;
+      try { localStorage.setItem("pmquest_uid", user.id); } catch (e) {}
+
       var local = b.getState();
       fetchRemote(user.id).then(function (remote) {
+        if (switched) {
+          // Different account: discard the previous user's local data entirely.
+          if (remote) { b.replaceState(remote); setSync("✔ sincronizado"); return null; }
+          b.resetLocal(); setSync("✔ sincronizado");
+          return pushRemote(user.id, b.getState());
+        }
         if (!remote) {
           // First time on this account -> adopt the current local progress.
           return pushRemote(user.id, local);
         }
-        // Keep whichever side shows more progress, so offline play is never lost.
+        // Same user: keep whichever side has more progress (offline play safe).
         var localScore = (local.xp || 0) + (local.answered || 0);
         var remoteScore = (remote.xp || 0) + (remote.answered || 0);
         if (remoteScore >= localScore) { b.replaceState(remote); setSync("✔ sincronizado"); }

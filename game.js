@@ -668,6 +668,11 @@
     replaceState: function (s) {
       try { state = migrateShape(s); save(); applyTheme(); renderHome(); show("home"); } catch (e) {}
     },
+    // Wipe local progress to a clean slate (keeps the theme). Used when a
+    // DIFFERENT account signs in on this browser, so no data is inherited.
+    resetLocal: function () {
+      try { var th = state.settings.theme; state = fresh(); state.settings.theme = th; save(); applyTheme(); renderHome(); show("home"); } catch (e) {}
+    },
     onSave: null, // sync layer assigns a function here once a user signs in
   };
 })();
