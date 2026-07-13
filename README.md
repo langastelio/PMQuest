@@ -42,11 +42,11 @@ Como é totalmente estático, basta abrir o ficheiro no browser:
 
 ```bash
 # Opção 1 — abrir diretamente
-# (faz duplo-clique em game.html, ou arrasta-o para o browser)
+# (faz duplo-clique em index.html, ou arrasta-o para o browser)
 
 # Opção 2 — servir localmente (recomendado, evita restrições de ficheiro local)
 python -m http.server 8000
-# depois abre  http://localhost:8000/game.html
+# depois abre  http://localhost:8000/  (ou .../index.html)
 ```
 
 Não há passo de _build_ nem instalação de dependências.
@@ -57,7 +57,7 @@ Não há passo de _build_ nem instalação de dependências.
 
 | Ficheiro        | Descrição                                                                     |
 | --------------- | ----------------------------------------------------------------------------- |
-| `game.html`     | Estrutura da aplicação — ecrãs (Início, Quiz, Resultados, Estatísticas) e modais. |
+| `index.html`    | Estrutura da aplicação — ecrãs (Início, Quiz, Resultados, Estatísticas) e modais. |
 | `game.css`      | Estilos, incluindo tema claro/escuro via variáveis CSS.                       |
 | `game.js`       | Lógica do jogo: níveis, XP, rondas, temporizador, conquistas, estatísticas, persistência. |
 | `questions.js`  | Banco de perguntas — define o global `window.QUESTION_BANK`.                   |
