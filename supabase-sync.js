@@ -36,7 +36,10 @@
     var currentUserId = null;
 
     var bridge = function () { return window.PMQuestCloud || null; };
-    function setSync(t) { var el = $("acctSyncState"); if (el) el.textContent = t; }
+    function setSync(t) {
+      var el = $("acctSyncState"); if (el) el.textContent = t;
+      var uc = $("userChip"); if (uc && t) uc.title = "Sessão iniciada · " + t;
+    }
     function setMsg(t, ok) {
       var el = $("acctMsg"); if (!el) return;
       el.textContent = t || "";
@@ -138,6 +141,15 @@
       };
     }
 
+    // ---- network status feedback ----
+    function banner(t) {
+      var el = document.getElementById("toast"); if (!el) return;
+      el.innerHTML = '<div class="nm">' + t + "</div>";
+      el.classList.add("show"); setTimeout(function () { el.classList.remove("show"); }, 4200);
+    }
+    window.addEventListener("offline", function () { banner("⚠ Sem ligação. O progresso sincroniza quando voltares online."); });
+    window.addEventListener("online", function () { banner("✔ Ligação restabelecida."); });
+
     // ---- reconcile local vs remote on sign-in ----
     function onSignedIn(session) {
       var b = bridge(); if (!b) return;
@@ -183,6 +195,11 @@
         return updateProfileStats(user.id, b.getState());
       }).then(function () {
         if ($("acctWho")) $("acctWho").textContent = user.email || identity.name || "convidado";
+        var uc = $("userChip");
+        if (uc) {
+          uc.textContent = "👤 " + (identity.name || (user.email ? user.email.split("@")[0] : "convidado"));
+          uc.style.display = "";
+        }
         // From now on, each local save pushes progress + leaderboard score (debounced).
         b.onSave = function (state) {
           clearTimeout(pushTimer);
@@ -197,6 +214,7 @@
     function onSignedOut() {
       var b = bridge(); if (b) b.onSave = null;
       identity.uid = null; identity.name = null; identity.anonymous = false; identity.is_admin = false;
+      var uc = $("userChip"); if (uc) { uc.style.display = "none"; uc.textContent = ""; }
       if ($("acctSignedIn")) $("acctSignedIn").style.display = "none";
       if ($("acctSignedOut")) $("acctSignedOut").style.display = "flex";
       setSync(""); setMsg("");

@@ -4,10 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PM Quest — Jogo de Product Management</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
 <!-- Open Graph: controls how the link looks when shared on LinkedIn -->
 <meta property="og:type" content="website">
 <meta property="og:title" content="PM Quest — Jogo de Product Management">
 <meta property="og:description" content="Treina Product Management com mais de 1000 perguntas, sobe de nível, ganha badges e entra no leaderboard.">
+<meta property="og:image" content="https://langastelio.github.io/PMQuest/og-image.svg">
+<meta property="og:url" content="https://langastelio.github.io/PMQuest/">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="stylesheet" href="game.css">
 <script src="i18n.js"></script>
 </head>
@@ -34,6 +38,7 @@
     <svg viewBox="0 0 48 48" aria-hidden="true"><rect x="3" y="2" width="42" height="44" rx="8" fill="#0033a0"/><g fill="#fff"><path d="M13 12.5 L35 10.5 L34 16 L12 18 Z"/><path d="M12.3 19 L34.3 17 L33.3 22.5 L11.3 24.5 Z"/><path d="M11.6 25.5 L33.6 23.5 L32.6 29 L10.6 31 Z"/><path d="M10.9 32 L32.9 30 L31.9 35.5 L9.9 37.5 Z"/></g></svg>
     <div class="t">PM Quest<small data-i18n="appbar_sub">Product Management · Júnior → Sénior</small></div>
     <div class="spacer"></div>
+    <span class="user-chip" id="userChip" style="display:none;" title="Sessão iniciada"></span>
     <button class="streak-chip off" id="streakChip" title="Sequência diária — ver estatísticas">🔥 0</button>
     <button class="icon-btn" id="langBtn" title="Idioma / Language">PT</button>
     <button class="icon-btn" id="settingsBtn" title="Definições" aria-label="Definições">⚙️</button>

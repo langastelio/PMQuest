@@ -34,7 +34,7 @@
     { id: "reachSenior", ic: "🚀", nm: "Product Sénior",   ds: "Atinge o nível Sénior",         cond: s => levelIndex(s.xp) >= 4 },
     { id: "reachLider",  ic: "👑", nm: "Líder de Produto",  ds: "Atinge o nível Líder",          cond: s => levelIndex(s.xp) >= 5 },
     { id: "comeback",    ic: "🔁", nm: "Regresso",         ds: "Domina 10 erros na revisão",    cond: s => s.reviewCleared >= 10 },
-    { id: "allq",        ic: "🎓", nm: "Banco Completo",    ds: "Respondeu a TODAS as perguntas", cond: s => BANK.length > 0 && s.seen.length >= BANK.length },
+    { id: "allq",        ic: "🎓", nm: "Banco Completo",    ds: "Respondeu a TODAS as perguntas", cond: s => BANK.length > 0 && (s.everSeen || []).length >= BANK.length },
   ];
 
   // topic keyword -> external reference (for "Saber mais")
@@ -89,7 +89,7 @@
     return {
       xp: 0, answered: 0, correct: 0, rounds: 0, perfectRounds: 0,
       seniorCorrect: 0, speedAnswers: 0, reviewCleared: 0,
-      seen: [], wrong: [], byTopic: {}, achievements: [], xpHistory: [],
+      seen: [], everSeen: [], wrong: [], byTopic: {}, achievements: [], xpHistory: [],
       streak: { count: 0, best: 0, last: "" },
       settings: { mode: "study", sound: true, theme: "light", timer: true },
     };
@@ -373,6 +373,8 @@
       }
       const t = q.topic; if (!state.byTopic[t]) state.byTopic[t] = [0, 0]; state.byTopic[t][1]++; if (ok) state.byTopic[t][0]++;
       if (!state.seen.includes(q.id)) state.seen.push(q.id);
+      if (!state.everSeen) state.everSeen = [];
+      if (!state.everSeen.includes(q.id)) state.everSeen.push(q.id); // never reset, for the "all questions" badge
     });
     const perfect = correct === round.items.length;
     if (perfect) { xpGained += 20; state.perfectRounds++; }

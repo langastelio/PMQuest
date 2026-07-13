@@ -22,6 +22,8 @@ button{font-family:inherit;}
 .appbar .t{font-weight:800;font-size:18px;color:var(--ink);line-height:1;}
 .appbar .t small{display:block;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:700;margin-top:3px;}
 .appbar .spacer{margin-left:auto;}
+.user-chip{display:inline-flex;align-items:center;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;background:#eaf0fb;color:var(--accent);font-weight:800;font-size:12.5px;padding:7px 11px;border-radius:999px;}
+body.dark .user-chip{background:#16294a;color:var(--accent-lt);}
 .streak-chip{display:inline-flex;align-items:center;gap:5px;background:#fff2d6;color:#a9700a;font-weight:800;font-size:13px;padding:7px 12px;border-radius:999px;}
 body.dark .streak-chip{background:#3a2e12;color:var(--gold);}
 .streak-chip.off{background:var(--line);color:var(--muted);}

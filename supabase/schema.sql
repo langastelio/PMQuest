@@ -85,3 +85,23 @@ drop trigger if exists profiles_touch_updated_at on public.profiles;
 create trigger profiles_touch_updated_at
   before update on public.profiles
   for each row execute function public.touch_updated_at();
+
+-- 6) Anti-cheat guardrail: clamp XP to a sane maximum relative to how many
+--    questions were answered (~40 XP/question is already generous: 20 base +
+--    10 speed + perfect-round bonuses). Stops a tampered client from posting
+--    an absurd score. NOTE: mitigation, not full protection — a determined
+--    cheater could also inflate `answered`. Real integrity needs server-side
+--    scoring of each answer.
+create or replace function public.clamp_profile_xp()
+returns trigger language plpgsql as $$
+begin
+  if new.xp < 0 then new.xp := 0; end if;
+  if new.answered < 0 then new.answered := 0; end if;
+  if new.xp > (new.answered * 40 + 100) then new.xp := new.answered * 40 + 100; end if;
+  return new;
+end $$;
+
+drop trigger if exists profiles_clamp_xp on public.profiles;
+create trigger profiles_clamp_xp
+  before insert or update on public.profiles
+  for each row execute function public.clamp_profile_xp();
