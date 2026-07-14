@@ -25,5 +25,5 @@
     <circle cx="760" cy="0" r="17" fill="#f2b705"/>
     <text x="760" y="6" fill="#3a2a00" font-size="18" font-weight="900" text-anchor="middle">★</text>
   </g>
-  <text x="1488" y="360" fill="#7f97bd" font-size="16" font-weight="600" text-anchor="end">langastelio.github.io/PMQuest</text>
+  <text x="1488" y="360" fill="#7f97bd" font-size="17" font-weight="600" text-anchor="end">pmquest-ten.vercel.app</text>
 </svg>

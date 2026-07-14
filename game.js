@@ -413,7 +413,7 @@
   // The app's public URL, used for the LinkedIn preview. Change if you host elsewhere.
   const SHARE_URL = (location.protocol.indexOf("http") === 0)
     ? location.origin + location.pathname.replace(/[^/]*$/, "")
-    : "https://langastelio.github.io/PMQuest/";
+    : "https://pmquest-ten.vercel.app/";
 
   function toastText(t) {
     const el = $("toast"); el.innerHTML = '<div class="nm">' + esc(t) + '</div>';
