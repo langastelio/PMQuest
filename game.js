@@ -61,6 +61,11 @@
   function decode(s) { return String(s || "").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&apos;/g, "'"); }
   function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
 
+  // Current UI language + Portuguese translations (keyed by the exact English
+  // question text). Falls back to English wherever a translation is missing.
+  const LANG = (window.PMQ_I18N && PMQ_I18N.getLang) ? PMQ_I18N.getLang() : "pt";
+  const QPT = window.QUESTION_BANK_PT || {};
+
   function prepBank(raw) {
     const seen = new Set(), out = [];
     (raw || []).forEach(it => {
@@ -68,13 +73,24 @@
       if (typeof it.answer !== "number" || it.answer < 0 || it.answer > 3) return;
       const key = norm(it.q); if (seen.has(key)) return; seen.add(key);
       const dif = ["junior", "mid", "senior"].includes(it.difficulty) ? it.difficulty : "mid";
+
+      // Pick PT text if available (options must be in the SAME order as EN so
+      // the answer index still points at the correct option).
+      let qTxt = it.q, optArr = it.options, expTxt = it.explanation;
+      const tr = LANG === "pt" ? QPT[it.q] : null;
+      if (tr) {
+        if (typeof tr.q === "string") qTxt = tr.q;
+        if (Array.isArray(tr.options) && tr.options.length === 4) optArr = tr.options;
+        if (typeof tr.explanation === "string") expTxt = tr.explanation;
+      }
+
       // FEATURE 8: answer-index shuffle
-      const opts = it.options.map((t, i) => ({ t: decode(t), correct: i === it.answer }));
+      const opts = optArr.map((t, i) => ({ t: decode(t), correct: i === it.answer }));
       shuffle(opts);
       out.push({
-        id: hash(it.q), q: decode(it.q).trim(),
+        id: hash(it.q), q: decode(qTxt).trim(),
         options: opts.map(o => o.t), answer: opts.findIndex(o => o.correct),
-        explanation: decode(it.explanation || "").trim(),
+        explanation: decode(expTxt || "").trim(),
         topic: decode(it.topic || "Product").trim(), difficulty: dif,
       });
     });
