@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1584" height="396" viewBox="0 0 1584 396" font-family="Segoe UI, Arial, sans-serif">
+  <defs>
+    <linearGradient id="bgB" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0a1730"/><stop offset="1" stop-color="#0b2c66"/></linearGradient>
+    <linearGradient id="xpB" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#0033a0"/><stop offset="1" stop-color="#f2b705"/></linearGradient>
+    <radialGradient id="glowB" cx="0.9" cy="0.3" r="0.5"><stop offset="0" stop-color="#2f6bd6" stop-opacity="0.4"/><stop offset="1" stop-color="#2f6bd6" stop-opacity="0"/></radialGradient>
+  </defs>
+  <rect width="1584" height="396" fill="url(#bgB)"/>
+  <rect width="1584" height="396" fill="url(#glowB)"/>
+  <g fill="none" stroke="#3a6bd0" stroke-opacity="0.13" stroke-width="2">
+    <circle cx="1380" cy="120" r="70"/><circle cx="1380" cy="120" r="130"/><circle cx="1380" cy="120" r="200"/>
+  </g>
+  <g transform="translate(96,70)">
+    <rect width="54" height="58" rx="13" fill="#fff"/>
+    <g fill="#0033a0"><path d="M14 15 L41 13.5 L40 20 L13.5 21.5 Z"/><path d="M13.5 23.5 L40.5 22 L39.5 28 L13 29.5 Z"/><path d="M13 32 L40 30.5 L39 36.5 L12.5 38 Z"/><path d="M12.5 40 L39.5 38.5 L38.5 44.5 L12 46 Z"/></g>
+  </g>
+  <text x="166" y="97" fill="#fff" font-size="27" font-weight="800" letter-spacing="1">PM QUEST</text>
+  <text x="167" y="120" fill="#9db8e8" font-size="12.5" font-weight="700" letter-spacing="3">PRODUCT MANAGEMENT</text>
+  <text x="96" y="235" fill="#ffffff" font-size="60" font-weight="800">Product Management, <tspan fill="#f2b705">gamificado.</tspan></text>
+  <text x="98" y="284" fill="#c8d8f0" font-size="24" font-weight="600">1000+ perguntas · níveis · badges · leaderboard · PT &amp; EN</text>
+  <g transform="translate(96,320)">
+    <line x1="16" y1="0" x2="760" y2="0" stroke="#20365c" stroke-width="7" stroke-linecap="round"/>
+    <line x1="16" y1="0" x2="560" y2="0" stroke="url(#xpB)" stroke-width="7" stroke-linecap="round"/>
+    <circle cx="16" cy="0" r="12" fill="#0033a0"/><circle cx="202" cy="0" r="12" fill="#0033a0"/>
+    <circle cx="388" cy="0" r="12" fill="#0033a0"/><circle cx="574" cy="0" r="12" fill="#20365c"/>
+    <circle cx="760" cy="0" r="17" fill="#f2b705"/>
+    <text x="760" y="6" fill="#3a2a00" font-size="18" font-weight="900" text-anchor="middle">★</text>
+  </g>
+  <text x="1488" y="360" fill="#7f97bd" font-size="16" font-weight="600" text-anchor="end">langastelio.github.io/PMQuest</text>
+</svg>
