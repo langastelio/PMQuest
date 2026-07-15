@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" font-family="Segoe UI, Arial, sans-serif">
+  <defs>
+    <linearGradient id="bgU" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0a1730"/><stop offset="1" stop-color="#0b2c66"/></linearGradient>
+    <radialGradient id="glowU" cx="0.85" cy="0.14" r="0.55"><stop offset="0" stop-color="#2f6bd6" stop-opacity="0.4"/><stop offset="1" stop-color="#2f6bd6" stop-opacity="0"/></radialGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bgU)"/>
+  <rect width="1200" height="630" fill="url(#glowU)"/>
+  <g fill="none" stroke="#3a6bd0" stroke-opacity="0.13" stroke-width="2">
+    <circle cx="1060" cy="110" r="70"/><circle cx="1060" cy="110" r="125"/><circle cx="1060" cy="110" r="185"/>
+  </g>
+
+  <!-- logo + wordmark -->
+  <g transform="translate(80,54)">
+    <rect width="58" height="62" rx="14" fill="#fff"/>
+    <g fill="#0033a0"><path d="M15 16 L44 14 L43 21 L14 23 Z"/><path d="M14 25 L43 23 L42 30 L13 32 Z"/><path d="M13 34 L42 32 L41 39 L12 41 Z"/><path d="M12 43 L41 41 L40 48 L11 50 Z"/></g>
+  </g>
+  <text x="152" y="82" fill="#fff" font-size="29" font-weight="800" letter-spacing="1">PM QUEST</text>
+  <text x="153" y="107" fill="#9db8e8" font-size="13" font-weight="700" letter-spacing="3">PLATAFORMA DE APRENDIZAGEM</text>
+
+  <!-- eyebrow + headline -->
+  <text x="80" y="212" fill="#f2b705" font-size="23" font-weight="800" letter-spacing="5">ATUALIZAÇÃO · CHANGELOG</text>
+  <text x="78" y="285" fill="#ffffff" font-size="56" font-weight="800">Mais afinado. Em português.</text>
+
+  <!-- checklist -->
+  <g font-size="27" font-weight="600" fill="#e7eef8">
+    <g transform="translate(100,360)"><circle r="17" fill="#1f9d55"/><path d="M-7 0 l5 5 l10 -11" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></g>
+    <text x="135" y="369">1000+ perguntas agora em português (PT &amp; EN)</text>
+
+    <g transform="translate(100,422)"><circle r="17" fill="#1f9d55"/><path d="M-7 0 l5 5 l10 -11" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></g>
+    <text x="135" y="431">Acentuação e traduções corrigidas</text>
+
+    <g transform="translate(100,484)"><circle r="17" fill="#1f9d55"/><path d="M-7 0 l5 5 l10 -11" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></g>
+    <text x="135" y="493">Dificuldade adaptativa: sobe de nível, sobe a exigência</text>
+
+    <g transform="translate(100,546)"><circle r="17" fill="#1f9d55"/><path d="M-7 0 l5 5 l10 -11" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></g>
+    <text x="135" y="555">Contas, leaderboard e badges mais estáveis</text>
+  </g>
+
+  <text x="1120" y="600" fill="#7f97bd" font-size="18" font-weight="600" text-anchor="end">pmquest-ten.vercel.app</text>
+</svg>
