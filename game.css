@@ -252,7 +252,7 @@ body.dark .lead-admin-bar{background:#3a1f1d;}
 .btn-share:hover{background:#004182;}
 
 /* ---- learning: paths + lessons + glossary ---- */
-.btn-track{background:linear-gradient(90deg,#0033a0,#0a58d6);color:#fff;border:0;}
+.btn-track{background:linear-gradient(90deg,#0033a0,#0a58d6);color:#fff;border:0;margin-top:12px;}
 body.dark .btn-track{background:linear-gradient(90deg,#0a58d6,#2f6bd6);}
 .btn-track:hover{filter:brightness(1.08);}
 .path-card{display:flex;gap:14px;align-items:flex-start;padding:14px;border:1px solid var(--line);border-radius:14px;margin-bottom:10px;background:var(--paper);cursor:pointer;transition:border-color .15s,transform .08s;}
