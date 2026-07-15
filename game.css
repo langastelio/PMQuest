@@ -250,3 +250,28 @@ body.dark .lead-admin-bar{background:#3a1f1d;}
 /* ---- LinkedIn share button ---- */
 .btn-share{display:inline-flex;align-items:center;gap:7px;background:#0a66c2;color:#fff;border:0;border-radius:8px;padding:9px 15px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;}
 .btn-share:hover{background:#004182;}
+
+/* ---- learning: paths + lessons + glossary ---- */
+.btn-track{background:linear-gradient(90deg,#0033a0,#0a58d6);color:#fff;border:0;}
+body.dark .btn-track{background:linear-gradient(90deg,#0a58d6,#2f6bd6);}
+.btn-track:hover{filter:brightness(1.08);}
+.path-card{display:flex;gap:14px;align-items:flex-start;padding:14px;border:1px solid var(--line);border-radius:14px;margin-bottom:10px;background:var(--paper);cursor:pointer;transition:border-color .15s,transform .08s;}
+.path-card:hover{border-color:var(--accent);}
+.path-card:active{transform:translateY(1px);}
+.path-card.locked{opacity:.6;cursor:not-allowed;}
+.path-card.locked:hover{border-color:var(--line);}
+.path-ic{font-size:30px;flex-shrink:0;line-height:1.2;}
+.path-main{flex:1;min-width:0;}
+.path-name{font-weight:800;color:var(--ink);font-size:16px;}
+.path-sub{font-size:13px;color:var(--muted);margin:2px 0 8px;}
+.path-bar{height:8px;background:var(--bg);border:1px solid var(--line);border-radius:99px;overflow:hidden;}
+.path-bar i{display:block;height:100%;background:linear-gradient(90deg,#0033a0,var(--gold));}
+.path-meta{font-size:11.5px;color:var(--muted);margin-top:6px;font-weight:600;}
+.lesson{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin-bottom:16px;}
+.lesson p{color:var(--ink);font-size:15px;line-height:1.6;margin-bottom:10px;}
+.lesson p:last-child{margin-bottom:0;}
+.gloss-item{padding:12px 0;border-bottom:1px solid var(--line);}
+.gloss-item:last-child{border-bottom:0;}
+.gloss-t{font-weight:800;color:var(--accent);font-size:14.5px;margin-bottom:3px;}
+body.dark .gloss-t{color:var(--accent-lt);}
+.gloss-d{font-size:14px;color:var(--ink);line-height:1.5;}

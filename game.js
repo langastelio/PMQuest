@@ -100,12 +100,38 @@
   const BY_ID = {}; BANK.forEach(q => BY_ID[q.id] = q);
   const TOPICS = [...new Set(BANK.map(q => q.topic))].sort((a, b) => a.localeCompare(b));
 
+  // ---------- learning content: paths (trilhas) + glossary ----------
+  const LEARN = window.PMQ_LEARN || { paths: [], glossary: [] };
+  const PATHS = LEARN.paths || [];
+  const TOPIC_PATH = {}; // topic -> first matching path id (by keyword)
+  TOPICS.forEach(t => {
+    const lt = t.toLowerCase();
+    const p = PATHS.find(P => (P.kw || []).some(k => lt.includes(k)));
+    if (p) TOPIC_PATH[t] = p.id;
+  });
+  const PATH_Q = {}; // path id -> questions in that path
+  PATHS.forEach(P => { PATH_Q[P.id] = BANK.filter(q => TOPIC_PATH[q.topic] === P.id); });
+
+  // ---------- spaced repetition (Leitner) ----------
+  const SRS_DAYS = [0, 1, 3, 7, 16, 35]; // interval per box; wrong -> box 0
+  const DAY_MS = 86400000;
+  function srsUpdate(qid, ok) {
+    if (!state.srs) state.srs = {};
+    const box = ok ? Math.min(SRS_DAYS.length - 1, ((state.srs[qid] && state.srs[qid].box) || 0) + 1) : 0;
+    state.srs[qid] = { box, due: Date.now() + SRS_DAYS[box] * DAY_MS };
+  }
+  function srsDue() {
+    const now = Date.now(), out = [];
+    if (state.srs) for (const id in state.srs) { if (state.srs[id].due <= now && BY_ID[id]) out.push(BY_ID[id]); }
+    return out;
+  }
+
   // ---------- state ----------
   function fresh() {
     return {
       xp: 0, answered: 0, correct: 0, rounds: 0, perfectRounds: 0,
       seniorCorrect: 0, speedAnswers: 0, reviewCleared: 0,
-      seen: [], everSeen: [], wrong: [], byTopic: {}, achievements: [], xpHistory: [],
+      seen: [], everSeen: [], wrong: [], srs: {}, byTopic: {}, achievements: [], xpHistory: [],
       streak: { count: 0, best: 0, last: "" },
       settings: { mode: "study", sound: true, theme: "light", timer: true },
     };
@@ -134,7 +160,7 @@
   function nextLevel(xp) { const i = levelIndex(xp); return i < LEVELS.length - 1 ? LEVELS[i + 1] : null; }
   const $ = id => document.getElementById(id);
   function esc(s) { return String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
-  const SCREENS = ["home", "quiz", "res", "stats", "lead"];
+  const SCREENS = ["home", "quiz", "res", "stats", "lead", "paths", "path", "gloss"];
   function show(name) { SCREENS.forEach(k => $("screen-" + k).classList.toggle("hidden", k !== name)); window.scrollTo(0, 0); }
 
   // ---------- sound (Web Audio) ----------
@@ -202,6 +228,9 @@
     $("startBtn").textContent = remaining <= 0 ? "🎉 Banco completo! Recomeçar questões" : "▶  Iniciar Exercício (10 questões)";
     $("reviewBtn").innerHTML = "🔁 Rever Erros<span> (" + state.wrong.length + ")</span>";
     $("reviewBtn").disabled = state.wrong.length === 0;
+    const due = srsDue().length;
+    $("srsBtn").innerHTML = "🧠 Revisão<span> (" + due + ")</span>";
+    $("srsBtn").disabled = due === 0;
     $("bankTotal").textContent = BANK.length;
   }
   function renderWeakChips() {
@@ -222,6 +251,20 @@
   function poolFor(config) {
     const seenSet = new Set(state.seen);
     let pool;
+    if (config.type === "srs") {
+      const due = srsDue();
+      due.sort((a, b) => state.srs[a.id].due - state.srs[b.id].due); // most overdue first
+      return due.slice(0, ROUND_SIZE);
+    }
+    if (config.type === "path") {
+      const list = PATH_Q[config.pathId] || [];
+      let un = list.filter(q => !seenSet.has(q.id));
+      if (un.length < ROUND_SIZE) un = un.concat(list.filter(q => !un.includes(q)));
+      shuffle(un);
+      const maxLi = Math.max(1, LEVELS.length - 1), r = Math.min(1, levelIndex(state.xp) / maxLi);
+      un.sort((a, b) => diffWeight(b, r) - diffWeight(a, r));
+      const top = un.slice(0, ROUND_SIZE * 3); shuffle(top); return top.slice(0, ROUND_SIZE);
+    }
     if (config.type === "review") {
       pool = state.wrong.map(id => BY_ID[id]).filter(Boolean);
       return shuffle(pool).slice(0, ROUND_SIZE);
@@ -396,6 +439,7 @@
         wrongs.push({ q, sel: a.sel });
         if (!state.wrong.includes(q.id)) state.wrong.push(q.id);
       }
+      srsUpdate(q.id, ok); // spaced repetition: schedule the next review
       const t = q.topic; if (!state.byTopic[t]) state.byTopic[t] = [0, 0]; state.byTopic[t][1]++; if (ok) state.byTopic[t][0]++;
       if (!state.seen.includes(q.id)) state.seen.push(q.id);
       if (!state.everSeen) state.everSeen = [];
@@ -629,6 +673,54 @@
   }
 
   // =====================================================================
+  //  LEARNING PATHS (trilhas) + GLOSSARY
+  // =====================================================================
+  let curPath = null;
+  function pathProgress(P) {
+    const list = PATH_Q[P.id] || []; if (!list.length) return 0;
+    const seen = new Set(state.everSeen || []);
+    let n = 0; list.forEach(q => { if (seen.has(q.id)) n++; });
+    return Math.round(n / list.length * 100);
+  }
+  function pathUnlocked(i) { return i === 0 || pathProgress(PATHS[i - 1]) >= 60; }
+
+  function renderPaths() {
+    const el = $("pathsList"); el.innerHTML = "";
+    PATHS.forEach((P, i) => {
+      const total = (PATH_Q[P.id] || []).length;
+      const prog = pathProgress(P), open = pathUnlocked(i);
+      const card = document.createElement("div");
+      card.className = "path-card" + (open ? "" : " locked");
+      card.innerHTML =
+        '<div class="path-ic">' + (open ? P.icon : "🔒") + "</div>" +
+        '<div class="path-main"><div class="path-name">' + esc(P.name) + "</div>" +
+        '<div class="path-sub">' + esc(P.blurb) + "</div>" +
+        '<div class="path-bar"><i style="width:' + prog + '%"></i></div>' +
+        '<div class="path-meta">' + prog + "% · " + total + " perguntas" +
+        (open ? "" : " · desbloqueia com 60% da trilha anterior") + "</div></div>";
+      if (open) card.onclick = () => openPath(P.id);
+      el.appendChild(card);
+    });
+  }
+  function openPath(id) {
+    const P = PATHS.find(x => x.id === id); if (!P) return;
+    curPath = P;
+    $("pathTitle").textContent = P.icon + " " + P.name;
+    $("pathLesson").innerHTML = String(P.lesson || "").split("\n").filter(Boolean).map(p => "<p>" + esc(p) + "</p>").join("");
+    const n = Math.min(ROUND_SIZE, (PATH_Q[P.id] || []).length);
+    $("pathStartBtn").textContent = "▶ Começar trilha (" + n + " perguntas)";
+    $("pathStartBtn").disabled = n === 0;
+    show("path");
+  }
+  function renderGloss(filter) {
+    const q = (filter || "").trim().toLowerCase();
+    const items = (LEARN.glossary || []).filter(g => !q || g.t.toLowerCase().includes(q) || g.d.toLowerCase().includes(q));
+    $("glossList").innerHTML = items.length
+      ? items.map(g => '<div class="gloss-item"><div class="gloss-t">' + esc(g.t) + '</div><div class="gloss-d">' + esc(g.d) + "</div></div>").join("")
+      : '<div class="foot">Sem resultados.</div>';
+  }
+
+  // =====================================================================
   //  WIRE UP
   // =====================================================================
   $("startBtn").onclick = () => startRound({ type: "normal" });
@@ -639,6 +731,14 @@
   $("statsBack").onclick = () => { renderHome(); show("home"); };
   $("leadBtn").onclick = () => { renderLeaderboard(); show("lead"); };
   $("leadBack").onclick = () => { renderHome(); show("home"); };
+  $("pathsBtn").onclick = () => { renderPaths(); show("paths"); };
+  $("pathsBack").onclick = () => { renderHome(); show("home"); };
+  $("pathBack").onclick = () => { renderPaths(); show("paths"); };
+  $("pathStartBtn").onclick = () => { if (curPath) startRound({ type: "path", pathId: curPath.id }); };
+  $("glossBtn").onclick = () => { $("glossSearch").value = ""; renderGloss(""); show("gloss"); };
+  $("glossBack").onclick = () => { renderHome(); show("home"); };
+  $("glossSearch").oninput = e => renderGloss(e.target.value);
+  $("srsBtn").onclick = () => { if (srsDue().length) startRound({ type: "srs" }); };
   $("nextBtn").onclick = nextQuestion;
   $("quitBtn").onclick = () => { stopTimer(); renderHome(); show("home"); };
   $("againBtn").onclick = () => startRound(lastConfig);

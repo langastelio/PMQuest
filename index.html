@@ -71,12 +71,15 @@
 
       <div class="actions">
         <button class="btn btn-primary" id="startBtn">▶ Iniciar Exercício</button>
+        <button class="btn btn-track" id="pathsBtn">🧭 Trilhas de Aprendizagem →</button>
         <div class="mode-row">
           <button class="btn btn-ghost" id="weakBtn" data-i18n-html="btn_weak"><span class="em">🎯</span> Áreas Fracas</button>
           <button class="btn btn-ghost" id="filterBtn" data-i18n-html="btn_filter"><span class="em">🎛️</span> Filtrar</button>
           <button class="btn btn-ghost" id="reviewBtn"><span class="em">🔁</span> Rever Erros<span> (0)</span></button>
+          <button class="btn btn-ghost" id="srsBtn"><span class="em">🧠</span> Revisão<span> (0)</span></button>
         </div>
         <button class="textlink" id="leadBtn" data-i18n="lead_link">🏆 Leaderboard →</button>
+        <button class="textlink" id="glossBtn">📖 Glossário PM →</button>
         <button class="textlink" id="statsBtn" data-i18n="stats_link">📊 Estatísticas &amp; conquistas →</button>
       </div>
       <div class="foot">Banco com <b id="bankTotal">0</b> questões · 10 por ronda · sem repetições</div>
@@ -172,6 +175,42 @@
     </div>
   </div>
 
+  <!-- ============ TRILHAS ============ -->
+  <div id="screen-paths" class="hidden">
+    <div class="card">
+      <div class="screen-head">
+        <button class="icon-btn" id="pathsBack" aria-label="Voltar">←</button>
+        <h2>🧭 Trilhas de Aprendizagem</h2>
+      </div>
+      <div class="sub" style="font-size:13px;color:var(--muted);margin-bottom:14px;">Módulos estruturados. Completa 60% de uma trilha para desbloquear a seguinte.</div>
+      <div id="pathsList"></div>
+    </div>
+  </div>
+
+  <!-- ============ TRILHA — detalhe + lição ============ -->
+  <div id="screen-path" class="hidden">
+    <div class="card">
+      <div class="screen-head">
+        <button class="icon-btn" id="pathBack" aria-label="Voltar">←</button>
+        <h2 id="pathTitle"></h2>
+      </div>
+      <div class="lesson" id="pathLesson"></div>
+      <button class="btn btn-primary" id="pathStartBtn">▶ Começar trilha</button>
+    </div>
+  </div>
+
+  <!-- ============ GLOSSÁRIO ============ -->
+  <div id="screen-gloss" class="hidden">
+    <div class="card">
+      <div class="screen-head">
+        <button class="icon-btn" id="glossBack" aria-label="Voltar">←</button>
+        <h2>📖 Glossário PM</h2>
+      </div>
+      <input id="glossSearch" class="acct-input" placeholder="Procurar termo ou definição…" style="margin-bottom:14px;">
+      <div id="glossList"></div>
+    </div>
+  </div>
+
 </div>
 
 <!-- ===== FILTER MODAL ===== -->
@@ -246,6 +285,7 @@
 
 <script src="questions.js"></script>
 <script src="questions.pt.js"></script>
+<script src="learn.js"></script>
 <script src="game.js"></script>
 <!-- Optional cloud sync. If offline or unconfigured, the app runs exactly as before. -->
 <!-- Supabase library is self-hosted (vendor/) so it works on networks that block CDNs. -->
