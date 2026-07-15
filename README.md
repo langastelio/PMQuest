@@ -1,7 +1,7 @@
 # PM Quest 🚀
 
-> Um jogo de treino gamificado para **Product Management** — de Estagiário a Líder de Produto.
-> A gamified training game for **Product Management** — from Intern to Product Leader.
+> Uma plataforma de aprendizagem baseada em perguntas para **Product Management** — de Estagiário a Líder de Produto.
+> A question-based learning platform for **Product Management** — from Intern to Product Leader.
 
 PM Quest é uma aplicação **web 100% client-side** (HTML + CSS + JavaScript puro, sem
 _frameworks_, sem _build_, sem servidor) que transforma o estudo de _Product Management_
@@ -16,7 +16,7 @@ num quiz por rondas com XP, níveis, sequências diárias e conquistas. A interf
   três níveis de dificuldade (`junior` · `mid` · `senior`).
 - **Rondas de 10 perguntas** sem repetições — o progresso é lembrado entre sessões.
 - **Sistema de XP e 6 níveis**: Estagiário → Júnior → Associado → Intermédio → Sénior → Líder.
-- **Modos de jogo**:
+- **Modos de treino**:
   - **Iniciar Exercício** — ronda normal, com dificuldade ajustada ao teu nível.
   - **Áreas Fracas** — foca os temas onde tens pior precisão.
   - **Filtrar** — escolhe tema e/ou dificuldade (ótimo para preparar uma vaga específica).

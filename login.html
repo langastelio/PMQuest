@@ -44,7 +44,7 @@
     <div id="alreadyIn" class="hidden">
       <h2>Bem-vindo de volta 👋</h2>
       <div class="login-signedin">Sessão iniciada como <b id="whoName"></b>.</div>
-      <button class="btn btn-primary" id="goGame">▶ Entrar no jogo</button>
+      <button class="btn btn-primary" id="goGame">▶ Começar a aprender</button>
       <div style="height:10px"></div>
       <button class="btn btn-ghost" id="signOut">Terminar sessão</button>
     </div>
@@ -85,7 +85,7 @@
       <div id="guestMsg" class="acct-msg" style="margin-bottom:10px;"></div>
       <button class="btn btn-ghost" id="guestBtn">Continuar com o nome →</button>
 
-      <a class="login-guest" href="#" id="pureGuest">Jogar sem conta (só neste dispositivo, sem leaderboard) →</a>
+      <a class="login-guest" href="#" id="pureGuest">Continuar sem conta (só neste dispositivo, sem leaderboard) →</a>
     </div>
   </div>
 
@@ -120,12 +120,12 @@
 
   if (!ready) {
     $("cfgFoot").textContent =
-      "⚠ Autenticação indisponível (biblioteca ou configuração em falta). Podes jogar sem conta.";
+      "⚠ Autenticação indisponível (biblioteca ou configuração em falta). Podes continuar sem conta.";
     $("authForm").querySelector(".seg-tabs").style.display = "none";
     ["nameField", "email", "pass", "submitBtn", "guestName", "guestBtn"].forEach(function (id) {
       var el = $(id); if (el) el.style.display = "none";
     });
-    $("formTitle").textContent = "Jogar sem conta";
+    $("formTitle").textContent = "Continuar sem conta";
     return;
   }
 

@@ -1,5 +1,5 @@
 ﻿/* ===================================================================
-   PM QUEST — Product Management quiz game (v2)
+   PM QUEST — Product Management learning platform (v2)
    Requires global QUESTION_BANK (array) from questions.js
    =================================================================== */
 (function () {
@@ -246,15 +246,24 @@
       unseen = pool.slice();
     }
     shuffle(unseen);
-    // bias to level difficulty for plain normal rounds
+    // Adaptive difficulty: the higher your level, the harder the questions get.
     if (config.type === "normal" && (!config.difficulty || config.difficulty === "all")) {
-      const li = levelIndex(state.xp), wMid = li >= 2, wSen = li >= 4;
-      unseen.sort((a, b) => w(b, wMid, wSen) - w(a, wMid, wSen));
+      const maxLi = Math.max(1, LEVELS.length - 1);
+      const r = Math.min(1, levelIndex(state.xp) / maxLi); // 0 = iniciante … 1 = topo
+      unseen.sort((a, b) => diffWeight(b, r) - diffWeight(a, r));
       const top = unseen.slice(0, ROUND_SIZE * 3); shuffle(top); return top.slice(0, ROUND_SIZE);
     }
     return unseen.slice(0, ROUND_SIZE);
   }
-  function w(q, wMid, wSen) { let x = Math.random() * 0.6; if (q.difficulty === "junior") x += 1; if (q.difficulty === "mid") x += wMid ? 1.4 : 0.6; if (q.difficulty === "senior") x += wSen ? 1.6 : 0.3; return x; }
+  // Weight a question by how well its difficulty matches the learner's progress r
+  // (0..1): easy dominates early, hard dominates near the top, medium peaks mid.
+  function diffWeight(q, r) {
+    let base;
+    if (q.difficulty === "junior") base = 1 - r;          // fades as you climb
+    else if (q.difficulty === "senior") base = r;         // grows as you climb
+    else base = 1 - Math.abs(r - 0.5) * 1.6;              // medium peaks mid-way
+    return Math.max(0.05, base) + Math.random() * 0.35;   // keep some variety
+  }
 
   function startRound(config) {
     lastConfig = config || lastConfig || { type: "normal" };
@@ -511,7 +520,7 @@
 
     // sparkline
     const h = state.xpHistory.map(x => x.acc); const sp = $("sparkSvg");
-    if (h.length < 2) sp.innerHTML = '<text x="6" y="40" fill="#8ba0c2" font-size="12">Joga mais rondas para ver a tendência.</text>';
+    if (h.length < 2) sp.innerHTML = '<text x="6" y="40" fill="#8ba0c2" font-size="12">Faz mais rondas para ver a tendência.</text>';
     else {
       const W = 600, H = 70, max = 100, step = W / (h.length - 1);
       const pts = h.map((v, i) => [i * step, H - (v / max) * (H - 8) - 4]);

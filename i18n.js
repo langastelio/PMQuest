@@ -41,7 +41,7 @@
       stats_ach: "Conquistas",
       // leaderboard
       lead_title: "🏆 Leaderboard",
-      lead_sub: "Melhores jogadores por XP.",
+      lead_sub: "Melhores alunos por XP.",
       // filter modal
       f_title: "🎛️ Filtrar exercício",
       f_sub: "Prepara-te para uma vaga específica escolhendo o tema e a dificuldade.",
@@ -56,7 +56,7 @@
       f_start: "Começar →",
       // settings modal
       set_title: "⚙️ Definições",
-      set_sub: "Personaliza a tua experiência de jogo.",
+      set_sub: "Personaliza a tua experiência de aprendizagem.",
       set_study: "Modo de estudo",
       set_study_s: "Mostra a resposta e explicação logo após cada questão (em vez de só no fim)",
       set_timer: "Temporizador",
@@ -102,7 +102,7 @@
       stats_weak: "Topics to improve",
       stats_ach: "Achievements",
       lead_title: "🏆 Leaderboard",
-      lead_sub: "Top players by XP.",
+      lead_sub: "Top learners by XP.",
       f_title: "🎛️ Filter exercise",
       f_sub: "Prepare for a specific role by choosing the topic and difficulty.",
       f_topic: "Topic",
@@ -115,7 +115,7 @@
       f_cancel: "Cancel",
       f_start: "Start →",
       set_title: "⚙️ Settings",
-      set_sub: "Customise your game experience.",
+      set_sub: "Customise your learning experience.",
       set_study: "Study mode",
       set_study_s: "Shows the answer and explanation right after each question (instead of only at the end)",
       set_timer: "Timer",

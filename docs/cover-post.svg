@@ -15,13 +15,13 @@
   </g>
   <text x="156" y="88" fill="#fff" font-size="30" font-weight="800" letter-spacing="1">PM QUEST</text>
   <text x="157" y="114" fill="#9db8e8" font-size="13.5" font-weight="700" letter-spacing="3">PRODUCT MANAGEMENT</text>
-  <text x="80" y="252" fill="#f2b705" font-size="23" font-weight="800" letter-spacing="4">O JOGO PARA QUEM QUER DOMINAR</text>
+  <text x="80" y="252" fill="#f2b705" font-size="23" font-weight="800" letter-spacing="4">A PLATAFORMA PARA QUEM QUER DOMINAR</text>
   <text x="78" y="342" fill="#ffffff" font-size="84" font-weight="800">Product Management</text>
   <text x="82" y="394" fill="#c8d8f0" font-size="26" font-weight="600">1000+ perguntas · níveis · badges · leaderboard · PT &amp; EN</text>
   <g transform="translate(80,432)">
-    <rect width="246" height="64" rx="32" fill="#e2231a"/>
+    <rect width="278" height="64" rx="32" fill="#e2231a"/>
     <path d="M36 24 L36 40 L50 32 Z" fill="#fff"/>
-    <text x="134" y="41" fill="#fff" font-size="25" font-weight="800" text-anchor="middle">Jogar grátis</text>
+    <text x="140" y="41" fill="#fff" font-size="25" font-weight="800" text-anchor="middle">Começar grátis</text>
   </g>
   <g transform="translate(80,562)">
     <line x1="20" y1="0" x2="1020" y2="0" stroke="#20365c" stroke-width="8" stroke-linecap="round"/>
