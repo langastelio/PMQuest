@@ -1,4 +1,4 @@
-/* questions.js — PM Quest question bank (auto-assembled from generated batches).
+﻿/* questions.js — PM Quest question bank (auto-assembled from generated batches).
    Entities like &amp; are decoded at runtime by the engine. */
 window.QUESTION_BANK = [].concat(
 /* --- Technical Fluency --- */

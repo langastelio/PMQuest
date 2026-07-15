@@ -1,4 +1,4 @@
-/* ===================================================================
+﻿/* ===================================================================
    PM Quest — i18n (PT / EN) for the STATIC interface.
    Elements with data-i18n="key" get their text replaced; elements with
    data-i18n-html="key" get their innerHTML replaced. Switching language

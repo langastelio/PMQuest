@@ -1,4 +1,4 @@
-/* ===================================================================
+﻿/* ===================================================================
    PM Quest — configuração partilhada do Supabase
    Usada por login.html e por supabase-sync.js.
    A chave "publishable"/"anon" é PÚBLICA por natureza — pode ir para o
